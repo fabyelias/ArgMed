@@ -1,0 +1,10 @@
+<svg width="100" height="30" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 15H10.5L16.5 5L23.5 25L29.5 15H40" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="45" y="22" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="url(#paint0_linear_1_2)" letter-spacing="-0.5px">ArgMed</text>
+<defs>
+<linearGradient id="paint0_linear_1_2" x1="45" y1="15" x2="100" y2="15" gradientUnits="userSpaceOnUse">
+<stop stop-color="#22D3EE"/>
+<stop offset="1" stop-color="#3B82F6"/>
+</linearGradient>
+</defs>
+</svg>
