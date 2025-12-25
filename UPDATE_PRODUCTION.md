@@ -65,7 +65,31 @@ Esto verificará que:
 
 ---
 
-### Opción 2: Deploy desde VS Code
+### Opción 2: Deploy Manual Interactivo (Más Fácil)
+
+**Este es el método más fácil y rápido:**
+
+1. **Ejecuta el script de deploy manual:**
+   ```bash
+   npm run deploy:manual
+   ```
+
+2. **Selecciona una opción del menú:**
+   - **Opción 1:** Deploy vía SSH (requiere contraseña del VPS) - **Recomendado**
+   - **Opción 2:** Abrir carpeta dist/ para FTP manual con FileZilla/WinSCP
+   - **Opción 3:** Mostrar instrucciones para copiar/pegar en SSH
+
+3. **El script automáticamente:**
+   - ✅ Verifica que el build tiene la configuración correcta
+   - ✅ Crea backup en el VPS antes de subir archivos
+   - ✅ Sube todos los archivos
+   - ✅ Configura permisos
+
+---
+
+### Opción 3: Deploy Automático desde VS Code
+
+**Nota:** Requiere configurar claves SSH sin contraseña (más avanzado)
 
 1. **Asegúrate de tener el .env actualizado localmente**
 
@@ -78,7 +102,7 @@ Esto verificará que:
 
 ---
 
-### Opción 3: Build manual y FTP
+### Opción 4: Build manual y FTP
 
 1. **En VS Code, genera el build:**
    ```bash
