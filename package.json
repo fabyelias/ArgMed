@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite --host :: --port 3000",
     "build": "node tools/generate-llms.js || true && vite build",
+    "build:prod": "vite build",
     "preview": "vite preview --host :: --port 3000",
-    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "deploy": "powershell -ExecutionPolicy Bypass -File ./deploy.ps1",
+    "deploy:bash": "bash deploy.sh"
   },
   "dependencies": {
     "@babel/generator": "^7.26.3",

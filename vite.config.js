@@ -254,13 +254,27 @@ export default defineConfig({
 		},
 	},
 	build: {
+		outDir: 'dist',
+		assetsDir: 'assets',
+		sourcemap: false,
+		minify: 'terser',
 		rollupOptions: {
 			external: [
 				'@babel/parser',
 				'@babel/traverse',
 				'@babel/generator',
 				'@babel/types'
-			]
-		}
-	}
+			],
+			output: {
+				manualChunks: {
+					'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+					'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
+					'vendor-supabase': ['@supabase/supabase-js'],
+					'vendor-mercadopago': ['@mercadopago/sdk-js', '@mercadopago/sdk-react']
+				}
+			}
+		},
+		chunkSizeWarningLimit: 1000
+	},
+	base: '/'
 });
