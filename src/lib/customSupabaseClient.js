@@ -1,7 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://bfhtmtnazzwthragaqfl.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmaHRtdG5henp3dGhyYWdhcWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNDMxNzEsImV4cCI6MjA3OTYxOTE3MX0.5oQtFmPorI8fYrXTKCABPri4QE4hE6eMG73Apd0b8wE';
+// Nuevo proyecto Supabase - ArgMed
+// Project ID: msnppinpethxfxskfgsv
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://msnppinpethxfxskfgsv.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_ANON_KEY_HERE';
+
+if (!supabaseAnonKey || supabaseAnonKey === 'YOUR_ANON_KEY_HERE') {
+  console.error('❌ Supabase Anon Key no configurada. Agrega VITE_SUPABASE_ANON_KEY en .env');
+}
 
 const customSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 

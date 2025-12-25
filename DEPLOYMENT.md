@@ -7,7 +7,7 @@ Esta guía te ayudará a desplegar tu aplicación ArgMed desde Visual Studio Cod
 - **Dominio:** argmed.online
 - **IP del VPS:** 89.117.32.202
 - **Hosting:** Hostinger VPS
-- **Base de Datos:** Supabase (https://bfhtmtnazzwthragaqfl.supabase.co)
+- **Base de Datos:** Supabase (https://msnppinpethxfxskfgsv.supabase.co)
 - **Pagos:** MercadoPago
 
 ---
@@ -28,7 +28,7 @@ VITE_PRODUCTION_URL=https://argmed.online
 ### 2. Configuración de Supabase
 
 La configuración de Supabase está en `src/lib/customSupabaseClient.js`:
-- URL: `https://bfhtmtnazzwthragaqfl.supabase.co`
+- URL: `https://msnppinpethxfxskfgsv.supabase.co`
 - Esta configuración ya está funcionando correctamente
 
 ---

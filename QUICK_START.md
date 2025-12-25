@@ -10,7 +10,7 @@ Ya está todo configurado y listo para usar:
 
 - ✅ **VPS Hostinger:** 89.117.32.202
 - ✅ **Dominio:** argmed.online
-- ✅ **Base de Datos:** Supabase (https://bfhtmtnazzwthragaqfl.supabase.co)
+- ✅ **Base de Datos:** Supabase (https://msnppinpethxfxskfgsv.supabase.co)
 - ✅ **Pagos:** MercadoPago (configurado)
 - ✅ **Dependencias:** Instaladas (680 paquetes)
 - ✅ **Servidor de desarrollo:** Funcionando en http://localhost:3000
@@ -107,7 +107,7 @@ VITE_PRODUCTION_URL=https://argmed.online
 
 ### Configuración de Supabase
 `src/lib/customSupabaseClient.js`
-- URL: https://bfhtmtnazzwthragaqfl.supabase.co
+- URL: https://msnppinpethxfxskfgsv.supabase.co
 - Ya configurado y funcionando
 
 ### Scripts de Deploy
@@ -127,7 +127,7 @@ VITE_PRODUCTION_URL=https://argmed.online
 - **VPS IP:** 89.117.32.202
 
 ### Dashboards
-- **Supabase:** https://supabase.com/dashboard/project/bfhtmtnazzwthragaqfl
+- **Supabase:** https://supabase.com/dashboard/project/msnppinpethxfxskfgsv
 - **MercadoPago:** https://www.mercadopago.com.ar/developers/panel
 
 ---

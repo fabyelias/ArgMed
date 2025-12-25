@@ -33,7 +33,16 @@ Thumbs.db
 *_chat.md
 CONFIGURACION_COMPLETADA.md
 SECURITY_GITHUB.md
+SUPABASE_MIGRATION.md
 .gitignore.local
+
+# Supabase - archivos con información sensible
+supabase/INSTRUCCIONES_SQL.txt
+supabase/QUICK_LINKS.md
+supabase/setup-database.ps1
+
+# Pre-commit security check
+PRE_COMMIT_CHECK.md
 
 # Deployment scripts con información sensible
 # deploy.sh y deploy.ps1 contienen info del servidor
