@@ -25,3 +25,22 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude AI Conversations y documentación sensible
+.claude/
+*.claude.json
+*_conversation.md
+*_chat.md
+CONFIGURACION_COMPLETADA.md
+SECURITY_GITHUB.md
+.gitignore.local
+
+# Deployment scripts con información sensible
+# deploy.sh y deploy.ps1 contienen info del servidor
+# Comentar estas líneas si quieres versionar los scripts
+# deploy.sh
+# deploy.ps1
+
+# Backups
+backup-*.tar.gz
+*.backup
