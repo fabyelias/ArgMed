@@ -45,10 +45,18 @@ supabase/setup-database.ps1
 PRE_COMMIT_CHECK.md
 
 # Deployment scripts con información sensible
-# deploy.sh y deploy.ps1 contienen info del servidor
-# Comentar estas líneas si quieres versionar los scripts
-# deploy.sh
-# deploy.ps1
+# Estos archivos contienen contraseñas, IPs y credenciales
+deploy-to-vps.sh
+create-env-vps.sh
+QUICK_SSH_COMMANDS.sh
+SSH_DEPLOY_COMMANDS.txt
+FTP_UPLOAD_INSTRUCTIONS.md
+deploy.sh
+deploy.ps1
+deploy-manual.ps1
+verify-build.ps1
+POST_DEPLOY_VERIFICATION.md
+UPDATE_PRODUCTION.md
 
 # Backups
 backup-*.tar.gz
