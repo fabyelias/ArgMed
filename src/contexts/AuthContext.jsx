@@ -209,7 +209,7 @@ export const AuthProvider = ({ children }) => {
              return { success: false, error: "El DNI debe contener solo números." };
          }
          
-         finalEmail = `${additionalData.dni}@argmed-patient.local`;
+         finalEmail = `${additionalData.dni}@argmed.online`;
       }
 
       const { data, error } = await supabase.auth.signUp({
