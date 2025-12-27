@@ -85,12 +85,13 @@ const PatientDashboard = () => {
     return (
         <div className="flex h-screen bg-slate-950 text-white">
             {/* Sidebar */}
-            <motion.div 
-                className="fixed inset-y-0 left-0 w-64 bg-slate-900 border-r border-slate-800 p-4 z-20 flex flex-col lg:relative"
+            <motion.div
+                className="fixed inset-y-0 left-0 w-64 bg-slate-900 border-r border-slate-800 p-4 z-20 flex flex-col lg:relative lg:translate-x-0"
                 variants={sidebarVariants}
                 initial="closed"
-                animate={isSidebarOpen ? "open" : "closed"}
+                animate={{ x: isSidebarOpen ? 0 : "-100%" }}
                 transition={{ type: "tween" }}
+                style={{ transform: window.innerWidth >= 1024 ? 'translateX(0)' : undefined }}
             >
                 <div className="flex items-center mb-8">
                     <img src="/argmed-logo.svg" alt="ArgMed Logo" className="w-10 h-10 mr-2" />
@@ -131,9 +132,12 @@ const PatientDashboard = () => {
                     <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                         <LayoutDashboard className="h-6 w-6" />
                     </Button>
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon">
                              <Bell className="h-6 w-6" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-red-400 hover:text-red-500 hover:bg-red-900/20">
+                             <LogOut className="h-6 w-6" />
                         </Button>
                     </div>
                 </header>
