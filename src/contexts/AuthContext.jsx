@@ -162,7 +162,7 @@ export const AuthProvider = ({ children }) => {
       const isEmail = emailOrId.includes('@');
       
       if (!isEmail && /^\d+$/.test(emailOrId)) {
-          loginEmail = `${emailOrId}@argmed-patient.local`;
+          loginEmail = `${emailOrId}@argmed.online`;
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
