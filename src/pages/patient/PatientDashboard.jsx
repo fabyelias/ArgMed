@@ -76,7 +76,11 @@ const PatientDashboard = () => {
     };
 
     const NavLink = ({ to, icon: Icon, children }) => (
-        <Link to={to} className="flex items-center p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+        <Link
+            to={to}
+            className="flex items-center p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors"
+            onClick={() => setIsSidebarOpen(false)}
+        >
             <Icon className="w-5 h-5 mr-3 text-cyan-400" />
             <span className="font-medium">{children}</span>
         </Link>
