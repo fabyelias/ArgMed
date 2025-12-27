@@ -44,7 +44,7 @@ const DoctorAlert = ({ request, onAccept, onReject }) => {
                   </span>
               )}
               <p className="text-gray-300 text-sm mt-1">
-                Paciente: <span className="text-white font-semibold">{request.patientName}</span>
+                Usuario: <span className="text-white font-semibold">{request.patientName}</span>
               </p>
               {request.reason && (
                   <p className="text-gray-400 text-xs italic mt-1 line-clamp-2">"{request.reason}"</p>

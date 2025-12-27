@@ -219,7 +219,7 @@ const DoctorLayout = ({ children }) => {
               </Avatar>
               <div className="flex-1 min-w-0">
                  <p className="text-sm font-bold text-white truncate">{user?.full_name}</p>
-                 <p className="text-xs text-gray-500 truncate">{user?.specialization || 'Profesional'}</p>
+                 <p className="text-xs text-cyan-400 truncate">{user?.email}</p>
               </div>
            </div>
            <Button 

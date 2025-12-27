@@ -9,7 +9,7 @@ import FindProfessional from '@/pages/patient/FindProfessional';
 import PatientProfile from '@/pages/patient/PatientProfile';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, LayoutDashboard, Stethoscope, FileText, User, Settings as SettingsIcon, Bell } from 'lucide-react';
+import { LogOut, LayoutDashboard, Stethoscope, FileText, User, Settings as SettingsIcon, Bell, Home } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 
@@ -101,16 +101,21 @@ const PatientDashboard = () => {
                 <div className="flex items-center mb-8">
                     <Avatar>
                         <AvatarImage src={profile?.photo_url} />
-                        <AvatarFallback>{profile?.full_name?.[0] || 'P'}</AvatarFallback>
+                        <AvatarFallback>{profile?.full_name?.[0] || 'U'}</AvatarFallback>
                     </Avatar>
                     <div className="ml-3">
-                        <p className="font-semibold">{profile?.full_name}</p>
-                        <p className="text-sm text-slate-400">Paciente</p>
+                        <p className="font-semibold text-white">{profile?.full_name}</p>
+                        <p className="text-sm text-cyan-400">{profile?.email}</p>
                     </div>
                 </div>
 
                 <nav className="flex-1 space-y-2">
-                    <NavLink to="/patient/dashboard" icon={LayoutDashboard}>Dashboard</NavLink>
+                    <Link to="/patient/dashboard">
+                        <Button className="w-full mb-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20">
+                            <Home className="w-4 h-4 mr-2" />
+                            Volver al Inicio
+                        </Button>
+                    </Link>
                     <NavLink to="/patient/find-professional" icon={Stethoscope}>Buscar Profesional</NavLink>
                     <NavLink to="/patient/medical-history" icon={FileText}>Historia Clínica</NavLink>
                     <NavLink to="/patient/profile" icon={User}>Mi Perfil</NavLink>
