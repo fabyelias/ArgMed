@@ -20,8 +20,8 @@ const WelcomeMessage = () => {
         </h1>
       </div>
       <p className='text-gray-300'>
-        Conectá con profesionales de la salud desde la comodidad de tu hogar.
-        <span className='font-semibold text-cyan-400'> ArgMed</span>, tu plataforma de telemedicina de confianza.
+        Conectá con profesionales desde donde estés.
+        <span className='font-semibold text-cyan-400'> ArgMed</span>, tu plataforma de videocomunicación de confianza.
       </p>
     </motion.div>
   );
