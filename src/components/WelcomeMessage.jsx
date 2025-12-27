@@ -16,7 +16,7 @@ const WelcomeMessage = () => {
       <div className="flex items-center gap-3 mb-2">
         <Activity className="w-6 h-6 text-cyan-400" />
         <h1 className="text-2xl font-bold text-white">
-          ¡Bienvenido, {profile?.first_name || profile?.full_name?.split(' ')[0] || 'Paciente'}!
+          ¡Bienvenido{profile?.first_name ? `, ${profile.first_name}` : profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}!
         </h1>
       </div>
       <p className='text-gray-300'>
