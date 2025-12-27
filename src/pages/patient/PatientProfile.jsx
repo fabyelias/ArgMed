@@ -115,19 +115,24 @@ const PatientProfile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column - Info Card */}
         <div className="col-span-1 lg:col-span-4 space-y-6">
-            <Card className="bg-slate-900/80 border-slate-800 overflow-hidden">
-                <div className="relative h-36 md:h-44 bg-gradient-to-r from-cyan-900/50 to-blue-900/50"></div>
-                <div className="px-4 pb-6 pt-16 md:pt-20 relative">
-                    <div className="absolute -top-24 md:-top-28 left-4">
-                        <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-slate-900 bg-slate-800 overflow-hidden group cursor-pointer shadow-xl" onClick={() => isEditing && fileInputRef.current?.click()}>
-                            {user?.photo_url ? <img src={user.photo_url} className="w-full h-full object-cover" alt="Profile" /> : <div className="w-full h-full flex items-center justify-center text-slate-600"><User className="w-10 h-10" /></div>}
-                            {isEditing && <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Upload className="text-white w-6 h-6" /></div>}
-                            {uploading && <div className="absolute inset-0 bg-black/70 flex items-center justify-center"><Loader2 className="text-cyan-400 w-6 h-6 animate-spin" /></div>}
+            <Card className="bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-slate-800/95 border-cyan-500/20 overflow-hidden backdrop-blur-sm">
+                <div className="relative h-32 bg-gradient-to-r from-cyan-600/20 via-blue-600/20 to-purple-600/20 overflow-hidden">
+                    <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                </div>
+                <div className="px-6 pb-6 relative">
+                    <div className="flex justify-center -mt-16 mb-4">
+                        <div className="relative group cursor-pointer" onClick={() => isEditing && fileInputRef.current?.click()}>
+                            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-md opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div className="relative w-32 h-32 rounded-full border-4 border-slate-900 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden shadow-2xl">
+                                {user?.photo_url ? <img src={user.photo_url} className="w-full h-full object-cover" alt="Profile" /> : <div className="w-full h-full flex items-center justify-center text-cyan-400/60"><User className="w-12 h-12" /></div>}
+                                {isEditing && <div className="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Upload className="text-cyan-400 w-6 h-6" /></div>}
+                                {uploading && <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><Loader2 className="text-cyan-400 w-6 h-6 animate-spin" /></div>}
+                            </div>
                         </div>
                         <input id="photo-upload" name="photo-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} disabled={!isEditing || uploading} />
                     </div>
-                    
-                    <div className="mt-4 md:mt-6 text-left pl-28 md:pl-36">
+
+                    <div className="text-center">
                         {isEditing ? (
                             <div className="space-y-4 text-left mt-4">
                                 <div>
@@ -155,13 +160,53 @@ const PatientProfile = () => {
                             </div>
                         ) : (
                             <>
-                                <h2 className="text-xl md:text-2xl font-bold text-white">{user?.full_name}</h2>
-                                <div className="flex justify-start mt-1"><Badge variant="outline" className="border-cyan-500/50 text-cyan-400">Usuario</Badge></div>
-                                <div className="mt-6 space-y-3 text-left">
-                                    <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-950/50 border border-slate-800/50"><Mail className="w-4 h-4 text-cyan-600" /><div className="overflow-hidden"><p className="text-xs text-gray-500 uppercase">Email</p><p className="text-sm text-white font-medium truncate">{user?.email}</p></div></div>
-                                    <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-950/50 border border-slate-800/50"><Phone className="w-4 h-4 text-cyan-600" /><div><p className="text-xs text-gray-500 uppercase">Teléfono</p><p className="text-sm text-white font-medium">{user?.phone || '-'}</p></div></div>
-                                    <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-950/50 border border-slate-800/50"><CreditCard className="w-4 h-4 text-cyan-600" /><div><p className="text-xs text-gray-500 uppercase">DNI</p><p className="text-sm text-white font-medium">{user?.dni || '-'}</p></div></div>
-                                    <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-950/50 border border-slate-800/50"><MapPin className="w-4 h-4 text-cyan-600" /><div><p className="text-xs text-gray-500 uppercase">Dirección</p><p className="text-sm text-white font-medium">{user?.address || '-'}</p></div></div>
+                                <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">{user?.full_name}</h2>
+                                <div className="flex justify-center mb-6"><Badge variant="outline" className="border-cyan-500/50 text-cyan-400 bg-cyan-500/10">Usuario</Badge></div>
+                                <div className="mt-6 space-y-3">
+                                    <div className="group relative p-4 rounded-xl bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-cyan-500/20 hover:border-cyan-500/40 transition-all hover:shadow-lg hover:shadow-cyan-500/10">
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 rounded-lg bg-cyan-500/10 group-hover:bg-cyan-500/20 transition-colors">
+                                                <Mail className="w-4 h-4 text-cyan-400" />
+                                            </div>
+                                            <div className="flex-1 overflow-hidden">
+                                                <p className="text-xs text-cyan-400/70 font-semibold uppercase tracking-wider mb-1">Email</p>
+                                                <p className="text-sm text-white/90 font-medium truncate">{user?.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="group relative p-4 rounded-xl bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-blue-500/20 hover:border-blue-500/40 transition-all hover:shadow-lg hover:shadow-blue-500/10">
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
+                                                <Phone className="w-4 h-4 text-blue-400" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-xs text-blue-400/70 font-semibold uppercase tracking-wider mb-1">Teléfono</p>
+                                                <p className="text-sm text-white/90 font-medium">{user?.phone || '-'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="group relative p-4 rounded-xl bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10">
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 rounded-lg bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
+                                                <CreditCard className="w-4 h-4 text-purple-400" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-xs text-purple-400/70 font-semibold uppercase tracking-wider mb-1">DNI</p>
+                                                <p className="text-sm text-white/90 font-medium">{user?.dni || '-'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="group relative p-4 rounded-xl bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-emerald-500/20 hover:border-emerald-500/40 transition-all hover:shadow-lg hover:shadow-emerald-500/10">
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
+                                                <MapPin className="w-4 h-4 text-emerald-400" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-xs text-emerald-400/70 font-semibold uppercase tracking-wider mb-1">Dirección</p>
+                                                <p className="text-sm text-white/90 font-medium">{user?.address || '-'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}
