@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ const Payment = () => {
 
     useEffect(() => {
         if (!consultationId) {
-            navigate('/patient/dashboard');
+            navigate('/user/dashboard');
             return;
         }
 
@@ -36,7 +36,7 @@ const Payment = () => {
             
             if (checkData.payment_status === 'paid') {
                 toast({ title: "Consulta ya pagada", description: "Redirigiendo a la sala..." });
-                navigate(`/patient/consultation/${consultationId}`);
+                navigate(`/user/consultation/${consultationId}`);
                 return;
             }
 
@@ -109,7 +109,7 @@ const Payment = () => {
                 )}
                 
                 <div className="mt-6 text-center">
-                    <Button variant="ghost" className="text-gray-500 hover:text-white text-sm" onClick={() => navigate('/patient/dashboard')}>
+                    <Button variant="ghost" className="text-gray-500 hover:text-white text-sm" onClick={() => navigate('/user/dashboard')}>
                         Cancelar y Volver
                     </Button>
                 </div>

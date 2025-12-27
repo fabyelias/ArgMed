@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Star, List, User, Stethoscope, 
@@ -192,7 +192,7 @@ const FindDoctor = () => {
                                 .maybeSingle();
                              
                              if (cons) {
-                                 navigate(`/patient/confirm-consultation/${cons.id}`);
+                                 navigate(`/user/confirm-consultation/${cons.id}`);
                              } else if (attempts < 10) { 
                                  attempts++;
                                  setTimeout(findConsultation, 800); 
@@ -271,7 +271,7 @@ const FindDoctor = () => {
             });
 
             toast({ title: "Solicitud Enviada", className: "bg-green-600 text-white" });
-            setTimeout(() => navigate('/patient'), 1000);
+            setTimeout(() => navigate('/user'), 1000);
         } catch (e) {
             console.error(e);
             toast({ title: "Error", description: "No se pudo enviar la solicitud", variant: "destructive" });

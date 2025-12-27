@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, CreditCard, Video, AlertCircle, CheckCircle2, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,9 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
 import WelcomeMessage from '@/components/WelcomeMessage';
-import PatientPaymentButton from '@/components/PatientPaymentButton';
+import UserPaymentButton from '@/components/userPaymentButton';
 
-const PatientHome = () => {
+const UserHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [consultations, setConsultations] = useState([]);
@@ -130,7 +130,7 @@ const PatientHome = () => {
             <Calendar className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <p className="text-gray-400 mb-6">No tienes consultas programadas.</p>
             <Button 
-              onClick={() => navigate('/patient/find-professional')}
+              onClick={() => navigate('/user/find-professional')}
               className="bg-cyan-600 hover:bg-cyan-700"
             >
               Buscar Profesional
@@ -194,7 +194,7 @@ const PatientHome = () => {
                       </div>
 
                       {config.action === 'payment' && (
-                        <PatientPaymentButton
+                        <UserPaymentButton
                           consultation={consultation}
                           doctor={consultation.professional}
                           onPaymentSuccess={handlePaymentSuccess}
@@ -203,7 +203,7 @@ const PatientHome = () => {
 
                       {config.action === 'join' && (
                         <Button 
-                          onClick={() => navigate(`/patient/video-call-room/${consultation.id}`)}
+                          onClick={() => navigate(`/user/video-call-room/${consultation.id}`)}
                           className="bg-green-600 hover:bg-green-700 text-white w-full"
                         >
                           <Video className="w-4 h-4 mr-2" />
@@ -222,4 +222,4 @@ const PatientHome = () => {
   );
 };
 
-export default PatientHome;
+export default UserHome;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Shield, Clock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -59,7 +59,7 @@ const Consultation = () => {
 
       if (error || !data) {
         toast({ title: "Error", description: "No se pudo cargar la consulta", variant: "destructive" });
-        navigate('/patient');
+        navigate('/user');
         return;
       }
       if (mounted) {
@@ -87,7 +87,7 @@ const Consultation = () => {
       console.error("Error ending call:", error);
     } finally {
       stopMediaStream();
-      navigate('/patient');
+      navigate('/user');
     }
   };
 

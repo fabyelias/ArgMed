@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Users, Search, Download, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,13 @@ const ManagePatients = () => {
   return (
     <>
       <Helmet>
-        <title>Gestionar Pacientes - ArgMed Admin</title>
+        <title>Gestionar Usuarios - ArgMed Admin</title>
       </Helmet>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Gestión de Pacientes</h1>
-            <p className="text-gray-400">Control de usuarios y actividad de pacientes.</p>
+            <h1 className="text-3xl font-bold text-white">Gestión de Usuarios</h1>
+            <p className="text-gray-400">Control de usuarios y actividad de Usuarios.</p>
           </div>
           <Button variant="outline" className="border-cyan-500 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-300">
             <Download className="w-4 h-4 mr-2" /> Exportar Reporte CSV
@@ -45,7 +45,7 @@ const ManagePatients = () => {
 
         <div className="bg-slate-900/30 border border-slate-800 rounded-xl p-12 text-center">
           <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-white">Directorio Global de Pacientes</h3>
+          <h3 className="text-lg font-medium text-white">Directorio Global de Usuarios</h3>
           <p className="text-gray-500 mt-2">Utiliza el buscador superior para localizar registros específicos.</p>
         </div>
       </div>

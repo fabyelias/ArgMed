@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, Loader2 } from 'lucide-react';
@@ -9,7 +9,7 @@ const PaymentSuccess = () => {
 
     useEffect(() => {
         const redirectTimer = setTimeout(() => {
-            navigate(`/patient/video-permissions/${consultationId}`);
+            navigate(`/user/video-permissions/${consultationId}`);
         }, 3000);
 
         return () => clearTimeout(redirectTimer);

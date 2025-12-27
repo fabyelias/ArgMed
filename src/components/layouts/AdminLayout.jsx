@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -36,7 +36,7 @@ const AdminLayout = () => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard General', path: '/admin' },
     { icon: Stethoscope, label: 'Gestión de Médicos', path: '/admin/doctors' },
-    { icon: Users, label: 'Gestión de Pacientes', path: '/admin/patients' },
+    { icon: Users, label: 'Gestión de Usuarios', path: '/admin/users' },
     { icon: Key, label: 'Seguridad y Contraseñas', path: '/admin/security' },
   ];
 

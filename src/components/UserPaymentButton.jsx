@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { CreditCard, Loader2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -8,7 +8,7 @@ import { toast } from '@/components/ui/use-toast';
 // Initialize MercadoPago with test key
 initMercadoPago('TEST-0f364d0e-8752-4375-9358-04e93d16331d');
 
-const PatientPaymentButton = ({ consultation, doctor, onPaymentSuccess }) => {
+const UserPaymentButton = ({ consultation, doctor, onPaymentSuccess }) => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -165,4 +165,4 @@ const PatientPaymentButton = ({ consultation, doctor, onPaymentSuccess }) => {
   );
 };
 
-export default PatientPaymentButton;
+export default UserPaymentButton;

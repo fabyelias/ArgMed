@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2, AlertTriangle, RefreshCw, Home, CreditCard, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
@@ -52,14 +52,14 @@ const PatientVideoCallRoom = () => {
 
         // 4. Status Check - Block Completed
         if (['completed', 'finished', 'cancelled', 'rejected'].includes(data.status)) {
-            navigate('/patient'); // Auto-redirect for professional feel
+            navigate('/user'); // Auto-redirect for professional feel
             return;
         }
 
         // 5. Payment Check - CRITICAL
         if (data.payment_status !== 'paid') {
             console.log("Unpaid consultation access attempt. Redirecting to payment...");
-            navigate(`/patient/confirm-consultation/${id}`);
+            navigate(`/user/confirm-consultation/${id}`);
             return;
         }
 
@@ -93,7 +93,7 @@ const PatientVideoCallRoom = () => {
         </div>
         <h1 className="text-2xl font-bold mb-2">Acceso Denegado</h1>
         <p className="text-gray-400 mb-6 max-w-md">{error}</p>
-        <Button onClick={() => navigate('/patient')} variant="outline" className="border-slate-700 text-white hover:bg-slate-800">
+        <Button onClick={() => navigate('/user')} variant="outline" className="border-slate-700 text-white hover:bg-slate-800">
           <Home className="w-4 h-4 mr-2" /> Volver al Inicio
         </Button>
       </div>

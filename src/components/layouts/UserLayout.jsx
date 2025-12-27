@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Activity, User, MapPin, CreditCard, Video, FileText, Star, Settings as SettingsIcon, LogOut, Menu, X, PlusCircle, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from '@/lib/utils';
 
-const PatientLayout = ({ children }) => {
+const UserLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
@@ -26,13 +26,13 @@ const PatientLayout = ({ children }) => {
   }, [location]);
 
   const menuItems = [
-    { icon: Home, label: 'Inicio', path: '/patient' },
-    { icon: User, label: 'Perfil', path: '/patient/profile' },
-    { icon: MapPin, label: 'Buscar Profesional', path: '/patient/find-doctor' },
-    { icon: CreditCard, label: 'Pagos', path: '/patient/payment' },
-    { icon: FileText, label: 'Bitácora', path: '/patient/history' },
-    { icon: Star, label: 'Reseñas', path: '/patient/reviews' },
-    { icon: SettingsIcon, label: 'Configuración', path: '/patient/settings' },
+    { icon: Home, label: 'Inicio', path: '/user' },
+    { icon: User, label: 'Perfil', path: '/user/profile' },
+    { icon: MapPin, label: 'Buscar Profesional', path: '/user/find-doctor' },
+    { icon: CreditCard, label: 'Pagos', path: '/user/payment' },
+    { icon: FileText, label: 'Bitácora', path: '/user/history' },
+    { icon: Star, label: 'Reseñas', path: '/user/reviews' },
+    { icon: SettingsIcon, label: 'Configuración', path: '/user/settings' },
   ];
 
   const handleLogout = () => {
@@ -44,7 +44,7 @@ const PatientLayout = ({ children }) => {
     <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row">
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 bg-slate-900/95 backdrop-blur-xl border-b border-cyan-500/30 h-16">
-        <div className="flex items-center gap-2" onClick={() => navigate('/patient')} role="button">
+        <div className="flex items-center gap-2" onClick={() => navigate('/user')} role="button">
            <Activity className="w-6 h-6 text-cyan-400" />
            <span className="font-bold text-white">ArgMed</span>
         </div>
@@ -74,7 +74,7 @@ const PatientLayout = ({ children }) => {
         <div className="flex flex-col h-full">
           {/* Desktop Logo / Mobile Menu Header */}
           <div className="p-6 border-b border-cyan-500/30 flex justify-between items-center h-16 md:h-auto">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/patient')}>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/user')}>
               <Activity className="w-8 h-8 text-cyan-400" />
               <div className="flex flex-col">
                   <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
@@ -88,7 +88,7 @@ const PatientLayout = ({ children }) => {
 
           <div className="p-4 pb-2">
             <Button
-              onClick={() => navigate('/patient/find-doctor')}
+              onClick={() => navigate('/user/find-doctor')}
               className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
@@ -137,10 +137,10 @@ const PatientLayout = ({ children }) => {
               <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-cyan-500/30 text-white">
                 <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-gray-700" />
-                <DropdownMenuItem className="focus:bg-cyan-500/20 cursor-pointer" onClick={() => navigate('/patient/profile')}>
+                <DropdownMenuItem className="focus:bg-cyan-500/20 cursor-pointer" onClick={() => navigate('/user/profile')}>
                   <User className="mr-2 h-4 w-4" /> Perfil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="focus:bg-cyan-500/20 cursor-pointer" onClick={() => navigate('/patient/settings')}>
+                <DropdownMenuItem className="focus:bg-cyan-500/20 cursor-pointer" onClick={() => navigate('/user/settings')}>
                   <SettingsIcon className="mr-2 h-4 w-4" /> Configuración
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-gray-700" />
@@ -162,4 +162,4 @@ const PatientLayout = ({ children }) => {
   );
 };
 
-export default PatientLayout;
+export default UserLayout;

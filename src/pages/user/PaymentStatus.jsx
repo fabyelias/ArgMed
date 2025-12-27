@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,19 +42,19 @@ const PaymentStatus = () => {
             .single();
 
           if (consultationData?.doctor_id) {
-             const patientName = consultationData.patients?.full_name || 'Un paciente';
+             const patientName = consultationData.patients?.full_name || 'Un Usuario';
              await supabase.from('notifications').insert({
                user_id: consultationData.doctor_id,
                type: 'payment_received',
                title: '¡Pago Recibido!',
-               message: `El paciente ${patientName} ha pagado la consulta.`,
+               message: `El Usuario ${patientName} ha pagado la consulta.`,
                payload: { consultationId: consultationId },
                is_read: false
              });
           }
 
           setStatus('success');
-          setTimeout(() => navigate(`/patient/video-call-room/${consultationId}`), 3000);
+          setTimeout(() => navigate(`/user/video-call-room/${consultationId}`), 3000);
 
         } catch (err) {
           console.error('Error processing payment return:', err);
@@ -90,7 +90,7 @@ const PaymentStatus = () => {
         <Button 
           onClick={() => {
              const id = searchParams.get('external_reference');
-             if(id) navigate(`/patient/video-call-room/${id}`);
+             if(id) navigate(`/user/video-call-room/${id}`);
           }}
           className="bg-cyan-600 hover:bg-cyan-700"
         >
@@ -106,7 +106,7 @@ const PaymentStatus = () => {
         <AlertTriangle className="w-16 h-16 text-red-500" />
       </div>
       <h2 className="text-2xl font-bold text-white mb-4">Algo salió mal</h2>
-      <Button onClick={() => navigate('/patient/dashboard')} variant="outline">
+      <Button onClick={() => navigate('/user/dashboard')} variant="outline">
         Volver al Panel
       </Button>
     </div>

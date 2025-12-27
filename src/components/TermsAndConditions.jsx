@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -41,12 +41,12 @@ const TermsAndConditions = ({ open, onOpenChange, onAccept }) => {
                     
                     <section>
                       <h4 className="font-bold text-white flex items-center gap-2 mb-2"><FileText className="w-4 h-4 text-cyan-400" /> 1. Definición del Servicio</h4>
-                      <p>ArgMed es una plataforma tecnológica de intermediación que facilita la conexión por videollamada entre usuarios ("Pacientes") y profesionales independientes de la salud ("Profesionales"). ArgMed <strong>NO es un proveedor de servicios médicos</strong>, no emplea médicos ni interviene en las decisiones profesionales.</p>
+                      <p>ArgMed es una plataforma tecnológica de intermediación que facilita la conexión por videollamada entre usuarios ("Usuarios") y profesionales independientes de la salud ("Profesionales"). ArgMed <strong>NO es un proveedor de servicios médicos</strong>, no emplea médicos ni interviene en las decisiones profesionales.</p>
                     </section>
 
                     <section>
                       <h4 className="font-bold text-white flex items-center gap-2 mb-2"><UserCheck className="w-4 h-4 text-green-400" /> 2. Obligaciones del Profesional</h4>
-                      <p>El Profesional declara poseer título habilitante y matrícula vigente. Es el único responsable de la calidad, pertinencia y legalidad del asesoramiento brindado. Se compromete a mantener la confidencialidad médico-paciente y a utilizar la plataforma de acuerdo con la ética profesional vigente.</p>
+                      <p>El Profesional declara poseer título habilitante y matrícula vigente. Es el único responsable de la calidad, pertinencia y legalidad del asesoramiento brindado. Se compromete a mantener la confidencialidad médico-Usuario y a utilizar la plataforma de acuerdo con la ética profesional vigente.</p>
                     </section>
 
                     <section>
@@ -82,7 +82,7 @@ const TermsAndConditions = ({ open, onOpenChange, onAccept }) => {
 
                     <section>
                       <h4 className="font-bold text-white flex items-center gap-2 mb-2"><Shield className="w-4 h-4 text-cyan-400" /> 2. Bitácora de Sesiones</h4>
-                      <p>La "Bitácora" es un registro privado de la interacción. Los datos de salud volcados allí están encriptados y solo son accesibles por las partes involucradas (Profesional y Paciente). ArgMed no vende ni comparte datos de salud con terceros para fines publicitarios.</p>
+                      <p>La "Bitácora" es un registro privado de la interacción. Los datos de salud volcados allí están encriptados y solo son accesibles por las partes involucradas (Profesional y Usuario). ArgMed no vende ni comparte datos de salud con terceros para fines publicitarios.</p>
                     </section>
 
                     <section>
@@ -114,7 +114,7 @@ const TermsAndConditions = ({ open, onOpenChange, onAccept }) => {
 
                     <section>
                       <h4 className="font-bold text-white mb-2">2. Responsabilidad de Terceros</h4>
-                      <p>ArgMed no avala ni garantiza la exactitud de los diagnósticos emitidos por los profesionales usuarios de la plataforma. La relación profesional es directa entre el Médico y el Paciente.</p>
+                      <p>ArgMed no avala ni garantiza la exactitud de los diagnósticos emitidos por los profesionales usuarios de la plataforma. La relación profesional es directa entre el Médico y el Usuario.</p>
                     </section>
                     
                     <section>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, Home, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
@@ -71,7 +71,7 @@ const DoctorVideoCallRoom = () => {
     return (
       <div className="flex flex-col items-center justify-center h-screen w-screen bg-slate-950 text-white">
         <Loader2 className="w-12 h-12 animate-spin text-cyan-500 mb-4" />
-        <h2 className="text-xl font-semibold">Conectando con el paciente...</h2>
+        <h2 className="text-xl font-semibold">Conectando con el Usuario...</h2>
       </div>
     );
   }

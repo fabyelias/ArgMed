@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Video, Mic, CheckCircle, AlertTriangle, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
@@ -68,7 +68,7 @@ const DoctorVideoPermissions = () => {
                         </div>
                         <h1 className="text-3xl font-bold text-white mb-3">Preparar Consultorio</h1>
                         <p className="text-gray-400 mb-8">
-                           Verifique su cámara y micrófono antes de ingresar a la consulta con el paciente.
+                           Verifique su cámara y micrófono antes de ingresar a la consulta con el Usuario.
                         </p>
                         
                         {status === 'error' && (

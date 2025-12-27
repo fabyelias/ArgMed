@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { User, Mail, Phone, Calendar, FileText, Bell, Activity, Edit2, Save, Upload, MapPin, CreditCard, Loader2, Heart, Shield, Pill, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-const PatientProfile = () => {
+const UserProfile = () => {
   const { user, updateProfile, uploadPhoto } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -277,4 +277,4 @@ const PatientProfile = () => {
   );
 };
 
-export default PatientProfile;
+export default UserProfile;

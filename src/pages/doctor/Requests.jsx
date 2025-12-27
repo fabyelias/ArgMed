@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Inbox, User, Check, X, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -74,7 +74,7 @@ const Requests = () => {
                       <User className="w-6 h-6 text-cyan-400" />
                    </div>
                    <div>
-                     <h3 className="font-bold text-white">{req.profiles?.full_name || 'Paciente'}</h3>
+                     <h3 className="font-bold text-white">{req.profiles?.full_name || 'Usuario'}</h3>
                      <div className="flex items-center gap-2 text-sm text-gray-400">
                        <Clock className="w-3 h-3" />
                        <span>Hace unos momentos</span>

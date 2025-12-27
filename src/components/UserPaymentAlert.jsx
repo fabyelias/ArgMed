@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, CreditCard, X } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const PatientPaymentAlert = () => {
+const UserPaymentAlert = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [pendingConsultation, setPendingConsultation] = useState(null);
@@ -85,7 +85,7 @@ const PatientPaymentAlert = () => {
             
             <Button 
               size="sm" 
-              onClick={() => navigate(`/patient/confirm-consultation/${pendingConsultation.id}`)}
+              onClick={() => navigate(`/user/confirm-consultation/${pendingConsultation.id}`)}
               className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold transition-colors"
             >
               <CreditCard className="w-4 h-4 mr-2" />
@@ -98,4 +98,4 @@ const PatientPaymentAlert = () => {
   );
 };
 
-export default PatientPaymentAlert;
+export default UserPaymentAlert;

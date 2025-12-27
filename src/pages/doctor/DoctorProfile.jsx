@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { Stethoscope, Upload, CreditCard, Loader2, AlertTriangle, CheckCircle, Users, FileText, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -164,14 +164,14 @@ const DoctorProfile = () => {
             <Tabs defaultValue="consultations" className="w-full">
                 <TabsList className="w-full bg-slate-900/50 border border-slate-800 p-1 mb-4 h-auto flex flex-col sm:flex-row">
                     <TabsTrigger value="consultations" className="flex-1 py-2 text-xs sm:text-sm"><FileText className="w-3 h-3 mr-2" /> Consultas</TabsTrigger>
-                    <TabsTrigger value="patients" className="flex-1 py-2 text-xs sm:text-sm"><Users className="w-3 h-3 mr-2" /> Pacientes</TabsTrigger>
+                    <TabsTrigger value="patients" className="flex-1 py-2 text-xs sm:text-sm"><Users className="w-3 h-3 mr-2" /> Usuarios</TabsTrigger>
                     <TabsTrigger value="notifications" className="flex-1 py-2 text-xs sm:text-sm"><Bell className="w-3 h-3 mr-2" /> Avisos</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="consultations" className="space-y-3">
                     {consultations.map(c => (
                         <div key={c.id} className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div><p className="font-bold text-white text-sm">{c.user?.full_name || 'Paciente'}</p><p className="text-xs text-gray-400">{new Date(c.updated_at).toLocaleDateString()} • ${c.consultation_fee}</p></div>
+                            <div><p className="font-bold text-white text-sm">{c.user?.full_name || 'Usuario'}</p><p className="text-xs text-gray-400">{new Date(c.updated_at).toLocaleDateString()} • ${c.consultation_fee}</p></div>
                             <Badge className="text-[10px] self-start">{c.status}</Badge>
                         </div>
                      ))}

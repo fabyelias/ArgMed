@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+﻿import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Mic, MicOff, Video, VideoOff, PhoneOff, User, 
@@ -184,7 +184,7 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
                 <div className="absolute inset-0 flex items-center justify-center z-0">
                     <div className="text-center">
                         <div className="inline-block p-4 rounded-full bg-slate-800 mb-4 animate-pulse"><User className="w-12 h-12 text-slate-500" /></div>
-                        <p className="text-slate-400 font-medium">Esperando al paciente...</p>
+                        <p className="text-slate-400 font-medium">Esperando al Usuario...</p>
                         <p className="text-slate-500 text-xs mt-2">Estado: {connectionStatus}</p>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
             </div>
             <div className="absolute top-4 left-4 right-4 flex justify-between z-30 pointer-events-none">
                 <div className="flex gap-2 pointer-events-auto">
-                    <div className="bg-slate-900/90 backdrop-blur border border-slate-700 px-4 py-2 rounded-full flex items-center gap-2 text-white text-sm font-bold shadow-lg"><User className="w-4 h-4 text-cyan-400" />{patientName || 'Paciente'}</div>
+                    <div className="bg-slate-900/90 backdrop-blur border border-slate-700 px-4 py-2 rounded-full flex items-center gap-2 text-white text-sm font-bold shadow-lg"><User className="w-4 h-4 text-cyan-400" />{patientName || 'Usuario'}</div>
                     <div className="bg-slate-900/90 backdrop-blur border border-slate-700 px-4 py-2 rounded-full flex items-center gap-2 text-green-400 text-sm font-mono font-bold shadow-lg"><Clock className="w-4 h-4" />{formatTime(duration)}</div>
                 </div>
                 <Button size="icon" onClick={() => setChatOpen(!chatOpen)} className="relative pointer-events-auto rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700">

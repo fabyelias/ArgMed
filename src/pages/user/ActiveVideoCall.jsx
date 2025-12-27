@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+﻿import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Mic, MicOff, Video, VideoOff, PhoneOff, Loader2, User, 
@@ -44,7 +44,7 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
             // Handle End Call
             if (payload.new.status === 'completed' || payload.new.status === 'finished') {
                 toast({ title: "Consulta Finalizada", description: "La llamada ha terminado." });
-                navigate('/patient');
+                navigate('/user');
             }
         })
         .subscribe();
@@ -54,7 +54,7 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
         const { data } = await supabase.from('consultations').select('started_at, status').eq('id', consultationId).single();
         
         if (data?.status === 'completed') {
-            navigate('/patient');
+            navigate('/user');
             return;
         }
 
@@ -115,16 +115,16 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
       if(!window.confirm("¿Finalizar consulta?")) return;
       try {
         await supabase.from('consultations').update({ status: 'completed', ended_at: new Date().toISOString(), duration }).eq('id', consultationId);
-        navigate('/patient');
+        navigate('/user');
       } catch (e) {
         console.error("Error ending call:", e);
-        navigate('/patient');
+        navigate('/user');
       }
   };
 
   return (
     <div className="h-screen w-screen bg-slate-950 flex overflow-hidden relative">
-      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} messages={messages} onSendMessage={(txt) => sendMessage(txt, user?.full_name || 'Paciente')} currentUserId={user?.id} sending={sending} />
+      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} messages={messages} onSendMessage={(txt) => sendMessage(txt, user?.full_name || 'Usuario')} currentUserId={user?.id} sending={sending} />
 
       <div className="flex-1 relative flex flex-col bg-black">
         <div className="flex-1 relative overflow-hidden bg-slate-900 flex items-center justify-center">

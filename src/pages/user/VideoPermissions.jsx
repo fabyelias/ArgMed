@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Video, Mic, CheckCircle, AlertTriangle, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
@@ -41,7 +41,7 @@ const VideoPermissions = () => {
             
             // Redirect to the SECURE ROOM page instead of direct active call
             setTimeout(() => {
-                navigate(`/patient/video-call-room/${id}`);
+                navigate(`/user/video-call-room/${id}`);
             }, 1500);
 
         } catch (err) {

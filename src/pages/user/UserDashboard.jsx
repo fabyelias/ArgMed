@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, Routes, Route, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
-import PatientHome from '@/pages/patient/PatientHome';
-import MedicalHistory from '@/pages/patient/MedicalHistory';
-import Settings from '@/pages/patient/Settings';
-import FindProfessional from '@/pages/patient/FindProfessional';
-import PatientProfile from '@/pages/patient/PatientProfile';
+import UserHome from '@/pages/user/userHome';
+import MedicalHistory from '@/pages/user/MedicalHistory';
+import Settings from '@/pages/user/Settings';
+import FindProfessional from '@/pages/user/FindProfessional';
+import UserProfile from '@/pages/user/userProfile';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, LayoutDashboard, Stethoscope, FileText, User, Settings as SettingsIcon, Bell, Home } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 
-const PatientDashboard = () => {
+const UserDashboard = () => {
     const { user, profile, logout } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
@@ -110,16 +110,16 @@ const PatientDashboard = () => {
                 </div>
 
                 <nav className="flex-1 space-y-2">
-                    <Link to="/patient/dashboard">
+                    <Link to="/user/dashboard">
                         <Button className="w-full mb-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20">
                             <Home className="w-4 h-4 mr-2" />
                             Volver al Inicio
                         </Button>
                     </Link>
-                    <NavLink to="/patient/find-professional" icon={Stethoscope}>Buscar Profesional</NavLink>
-                    <NavLink to="/patient/medical-history" icon={FileText}>Historia Clínica</NavLink>
-                    <NavLink to="/patient/profile" icon={User}>Mi Perfil</NavLink>
-                    <NavLink to="/patient/settings" icon={SettingsIcon}>Configuración</NavLink>
+                    <NavLink to="/user/find-professional" icon={Stethoscope}>Buscar Profesional</NavLink>
+                    <NavLink to="/user/medical-history" icon={FileText}>Historia Clínica</NavLink>
+                    <NavLink to="/user/profile" icon={User}>Mi Perfil</NavLink>
+                    <NavLink to="/user/settings" icon={SettingsIcon}>Configuración</NavLink>
                 </nav>
 
                 <div className="mt-auto">
@@ -161,19 +161,19 @@ const PatientDashboard = () => {
                             <p className="text-sm">Por favor, completá el pago para confirmar.</p>
                             <Button 
                                 className="mt-2 bg-white text-blue-600 hover:bg-slate-200"
-                                onClick={() => navigate(`/patient/confirm-consultation/${consult.id}`)}
+                                onClick={() => navigate(`/user/confirm-consultation/${consult.id}`)}
                             >
                                 Ir a Pagar
                             </Button>
                         </motion.div>
                     ))}
                     <Routes>
-                        <Route index element={<PatientHome />} />
-                        <Route path="dashboard" element={<PatientHome />} />
+                        <Route index element={<UserHome />} />
+                        <Route path="dashboard" element={<UserHome />} />
                         <Route path="medical-history" element={<MedicalHistory />} />
                         <Route path="settings" element={<Settings />} />
                         <Route path="find-professional" element={<FindProfessional />} />
-                        <Route path="profile" element={<PatientProfile />} />
+                        <Route path="profile" element={<UserProfile />} />
                     </Routes>
                 </div>
             </main>
@@ -181,4 +181,4 @@ const PatientDashboard = () => {
     );
 };
 
-export default PatientDashboard;
+export default UserDashboard;

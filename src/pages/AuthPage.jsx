@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -71,7 +71,7 @@ const AuthPage = () => {
           toast({ title: "¡Bienvenido!", description: "Inicio de sesión exitoso" });
           
           // Redirect based on returned role
-          if (result.role === 'patient') navigate('/patient');
+          if (result.role === 'patient') navigate('/user');
           else if (result.role === 'doctor') navigate('/professional'); // Will redirect to onboarding if needed via Dashboard guard
           else if (result.role === 'legal_admin') navigate('/legal/dashboard');
           else if (result.role === 'admin') navigate('/admin');

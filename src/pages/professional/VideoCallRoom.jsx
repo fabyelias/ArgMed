@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,7 @@ const VideoCallRoom = () => {
             <User className="text-white w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-white font-bold text-lg">{consultation?.patient?.full_name || 'Paciente'}</h2>
+            <h2 className="text-white font-bold text-lg">{consultation?.patient?.full_name || 'Usuario'}</h2>
             <p className="text-cyan-400 text-xs flex items-center gap-1">
               <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> En vivo
             </p>
@@ -81,7 +81,7 @@ const VideoCallRoom = () => {
           <div className="w-32 h-32 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <User className="w-16 h-16 text-slate-600" />
           </div>
-          <h3 className="text-xl text-white font-medium">Conectando con el paciente...</h3>
+          <h3 className="text-xl text-white font-medium">Conectando con el Usuario...</h3>
           <p className="text-gray-500 mt-2">La señal de video aparecería aquí.</p>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Button } from '@/components/ui/button';
@@ -52,14 +52,14 @@ const ConfirmConsultation = () => {
                 description: error.message || "No se pudo cargar la información de la consulta.", 
                 variant: "destructive" 
             });
-            setTimeout(() => navigate('/patient/dashboard'), 2000);
+            setTimeout(() => navigate('/user/dashboard'), 2000);
         } finally {
             setLoading(false);
         }
     };
 
     const handleProceedToPayment = () => {
-        navigate('/patient/payment', { 
+        navigate('/user/payment', { 
             state: { 
                 consultationId: consultation.id,
                 amount: consultation.consultation_fee,
