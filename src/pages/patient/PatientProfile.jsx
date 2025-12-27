@@ -116,9 +116,9 @@ const PatientProfile = () => {
         {/* Left Column - Info Card */}
         <div className="col-span-1 lg:col-span-4 space-y-6">
             <Card className="bg-slate-900/80 border-slate-800 overflow-hidden">
-                <div className="relative h-24 md:h-32 bg-gradient-to-r from-cyan-900/50 to-blue-900/50"></div>
+                <div className="relative h-28 md:h-36 bg-gradient-to-r from-cyan-900/50 to-blue-900/50"></div>
                 <div className="px-4 pb-6 pt-16 md:pt-20 relative">
-                    <div className="absolute -top-12 md:-top-16 left-1/2 transform -translate-x-1/2">
+                    <div className="absolute -top-16 md:-top-20 left-1/2 transform -translate-x-1/2">
                         <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-slate-900 bg-slate-800 overflow-hidden group cursor-pointer shadow-xl" onClick={() => isEditing && fileInputRef.current?.click()}>
                             {user?.photo_url ? <img src={user.photo_url} className="w-full h-full object-cover" alt="Profile" /> : <div className="w-full h-full flex items-center justify-center text-slate-600"><User className="w-10 h-10" /></div>}
                             {isEditing && <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Upload className="text-white w-6 h-6" /></div>}
