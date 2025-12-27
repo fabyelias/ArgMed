@@ -127,7 +127,7 @@ const PatientProfile = () => {
                         <input id="photo-upload" name="photo-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} disabled={!isEditing || uploading} />
                     </div>
                     
-                    <div className="mt-20 md:mt-24 text-center">
+                    <div className="mt-24 md:mt-28 text-center">
                         {isEditing ? (
                             <div className="space-y-4 text-left mt-4">
                                 <div>
