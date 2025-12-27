@@ -87,9 +87,9 @@ const PatientDashboard = () => {
         <div className="flex h-screen bg-slate-950 text-white">
             {/* Sidebar */}
             <motion.div
-                className="hidden lg:flex fixed inset-y-0 left-0 w-64 bg-slate-900 border-r border-slate-800 p-4 z-20 flex-col lg:relative lg:translate-x-0"
+                className="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 border-r border-slate-800 p-4 z-20 flex flex-col lg:translate-x-0"
                 variants={sidebarVariants}
-                initial="closed"
+                initial={false}
                 animate={isSidebarOpen ? "open" : "closed"}
                 transition={{ type: "tween" }}
             >
