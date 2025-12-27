@@ -17,7 +17,7 @@ const PatientDashboard = () => {
     const { user, profile, logout } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(typeof window !== 'undefined' && window.innerWidth >= 1024);
     const [pendingConsultations, setPendingConsultations] = useState([]);
 
     useEffect(() => {
