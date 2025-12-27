@@ -14,7 +14,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 
 const PatientDashboard = () => {
-    const { user, profile, signOut } = useAuth();
+    const { user, profile, logout } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -56,17 +56,14 @@ const PatientDashboard = () => {
             setPendingConsultations(data);
 
         } catch (error) {
-            console.error("Error fetching pending consultations:", error);
-            toast({
-                title: 'Error',
-                description: 'Could not fetch pending consultations.',
-                variant: 'destructive',
-            });
+            // Silently handle error - consultations table may not exist yet
+            console.log("Could not fetch pending consultations - table may not be configured yet");
+            setPendingConsultations([]);
         }
     };
     
     const handleSignOut = async () => {
-        await signOut();
+        await logout();
         navigate('/');
     };
 

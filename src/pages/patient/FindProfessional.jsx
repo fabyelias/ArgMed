@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search, Star, List, User, Stethoscope, 
-  Loader2, Check, ArrowRight, XCircle, Radar
+import {
+  Search, Star, List, User, Stethoscope,
+  Loader2, Check, ArrowRight, XCircle, Radar, ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -319,6 +319,14 @@ const FindProfessional = () => {
             )}
 
             <div className="mb-8">
+                <Button
+                    onClick={() => navigate('/patient/dashboard')}
+                    variant="ghost"
+                    className="mb-4 text-gray-400 hover:text-white"
+                >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Volver al inicio
+                </Button>
                 <h1 className="text-3xl font-bold text-white mb-2">Encontrá tu Profesional</h1>
                 <p className="text-gray-400 max-w-xl mb-6">
                     Selecciona una opción rápida o busca en el listado.

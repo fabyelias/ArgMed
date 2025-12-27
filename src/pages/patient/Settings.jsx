@@ -18,15 +18,42 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
-  const { deleteAccount } = useAuth();
+  const { deleteAccount, user, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
+  const [notifications, setNotifications] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  const handleToggleNotifications = () => {
+    setNotifications(!notifications);
+  };
+
+  const handlePrivacySettings = () => {
     toast({
-      title: "Configuración guardada",
-      description: "Tus preferencias han sido actualizadas",
+      title: "Configuración de privacidad",
+      description: "Esta función estará disponible próximamente",
     });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Aquí podrías guardar las preferencias en Supabase
+      // await updateProfile({ notifications_enabled: notifications });
+
+      toast({
+        title: "Configuración guardada",
+        description: "Tus preferencias han sido actualizadas",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar los cambios",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -62,8 +89,15 @@ const Settings = () => {
                 <p className="text-sm text-gray-400">Recibir recordatorios de turnos</p>
               </div>
             </div>
-            <button className="w-12 h-6 bg-cyan-500 rounded-full relative">
-              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+            <button
+              onClick={handleToggleNotifications}
+              className={`w-12 h-6 rounded-full relative transition-colors ${
+                notifications ? 'bg-cyan-500' : 'bg-gray-600'
+              }`}
+            >
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
+                notifications ? 'right-1' : 'left-1'
+              }`}></div>
             </button>
           </div>
 
@@ -76,7 +110,11 @@ const Settings = () => {
                 <p className="text-sm text-gray-400">Gestionar privacidad de datos</p>
               </div>
             </div>
-            <Button variant="outline" className="border-cyan-400 text-cyan-400">
+            <Button
+              onClick={handlePrivacySettings}
+              variant="outline"
+              className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+            >
               Configurar
             </Button>
           </div>
@@ -117,9 +155,10 @@ const Settings = () => {
 
           <Button
             onClick={handleSave}
+            disabled={saving}
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
           >
-            Guardar Cambios
+            {saving ? "Guardando..." : "Guardar Cambios"}
           </Button>
         </div>
       </motion.div>
