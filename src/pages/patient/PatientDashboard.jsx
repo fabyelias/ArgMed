@@ -87,12 +87,11 @@ const PatientDashboard = () => {
         <div className="flex h-screen bg-slate-950 text-white">
             {/* Sidebar */}
             <motion.div
-                className="fixed inset-y-0 left-0 w-64 bg-slate-900 border-r border-slate-800 p-4 z-20 flex flex-col lg:relative lg:translate-x-0"
+                className="hidden lg:flex fixed inset-y-0 left-0 w-64 bg-slate-900 border-r border-slate-800 p-4 z-20 flex-col lg:relative lg:translate-x-0"
                 variants={sidebarVariants}
                 initial="closed"
-                animate={{ x: isSidebarOpen ? 0 : "-100%" }}
+                animate={isSidebarOpen ? "open" : "closed"}
                 transition={{ type: "tween" }}
-                style={{ transform: window.innerWidth >= 1024 ? 'translateX(0)' : undefined }}
             >
                 <div className="flex items-center mb-8">
                     <img src="/argmed-logo.svg" alt="ArgMed Logo" className="w-10 h-10 mr-2" />
