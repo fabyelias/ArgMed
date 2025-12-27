@@ -123,7 +123,7 @@ const PatientHome = () => {
       <WelcomeMessage />
 
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white mb-4">Mis Consultas</h2>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-6">Mis Consultas</h2>
         
         {consultations.length === 0 ? (
           <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-12 text-center">
@@ -142,24 +142,27 @@ const PatientHome = () => {
               const config = getStatusConfig(consultation);
               
               return (
-                <div 
+                <div
                   key={consultation.id}
-                  className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition-all"
+                  className="group relative bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-slate-800/95 border border-cyan-500/20 rounded-2xl p-6 hover:border-cyan-500/50 transition-all hover:shadow-xl hover:shadow-cyan-500/10 backdrop-blur-sm"
                 >
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex items-start gap-4 flex-1">
-                      <div className="w-16 h-16 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
-                        {consultation.professional?.photo_url ? (
-                          <img 
-                            src={consultation.professional.photo_url} 
-                            alt="Professional" 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-500">
-                            <User className="w-8 h-8" />
-                          </div>
-                        )}
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                        <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden border-2 border-cyan-500/30">
+                          {consultation.professional?.photo_url ? (
+                            <img
+                              src={consultation.professional.photo_url}
+                              alt="Professional"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-cyan-400/60">
+                              <User className="w-8 h-8" />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -183,9 +186,9 @@ const PatientHome = () => {
                     </div>
 
                     <div className="flex flex-col gap-2 md:min-w-[200px]">
-                      <div className="bg-slate-950 rounded-lg p-3 mb-2">
-                        <div className="text-xs text-gray-500 mb-1">Tarifa</div>
-                        <div className="text-2xl font-bold text-green-400">
+                      <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/30 rounded-xl p-4 mb-2">
+                        <div className="text-xs text-emerald-400/70 font-semibold uppercase tracking-wider mb-1">Tarifa</div>
+                        <div className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
                           ${consultation.consultation_fee}
                         </div>
                       </div>
