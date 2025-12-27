@@ -117,7 +117,7 @@ const PatientProfile = () => {
         <div className="col-span-1 lg:col-span-4 space-y-6">
             <Card className="bg-slate-900/80 border-slate-800 overflow-hidden">
                 <div className="relative h-24 md:h-32 bg-gradient-to-r from-cyan-900/50 to-blue-900/50"></div>
-                <div className="px-4 pb-6 relative">
+                <div className="px-4 pb-6 pt-16 md:pt-20 relative">
                     <div className="absolute -top-12 md:-top-16 left-1/2 transform -translate-x-1/2">
                         <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-slate-900 bg-slate-800 overflow-hidden group cursor-pointer shadow-xl" onClick={() => isEditing && fileInputRef.current?.click()}>
                             {user?.photo_url ? <img src={user.photo_url} className="w-full h-full object-cover" alt="Profile" /> : <div className="w-full h-full flex items-center justify-center text-slate-600"><User className="w-10 h-10" /></div>}
@@ -127,7 +127,7 @@ const PatientProfile = () => {
                         <input id="photo-upload" name="photo-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} disabled={!isEditing || uploading} />
                     </div>
                     
-                    <div className="mt-24 md:mt-28 text-center">
+                    <div className="mt-16 md:mt-20 text-center">
                         {isEditing ? (
                             <div className="space-y-4 text-left mt-4">
                                 <div>
