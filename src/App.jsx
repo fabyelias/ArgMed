@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'rea
 import { Toaster } from '@/components/ui/toaster';
 import LandingPage from '@/pages/LandingPage';
 import AuthPage from '@/pages/AuthPage';
-import UserDashboard from '@/pages/user/userDashboard';
+import UserDashboard from '@/pages/user/UserDashboard';
 import ProfessionalDashboard from '@/pages/professional/ProfessionalDashboard';
 import ProfessionalOnboarding from '@/pages/professional/ProfessionalOnboarding';
 
@@ -16,7 +16,7 @@ import AdminLayout from '@/components/layouts/AdminLayout';
 
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import UserPaymentAlert from '@/components/userPaymentAlert';
+import UserPaymentAlert from '@/components/UserPaymentAlert';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 

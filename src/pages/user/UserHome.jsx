@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
 import WelcomeMessage from '@/components/WelcomeMessage';
-import UserPaymentButton from '@/components/userPaymentButton';
+import UserPaymentButton from '@/components/UserPaymentButton';
 
 const UserHome = () => {
   const { user } = useAuth();

@@ -2,11 +2,11 @@
 import { Link, Routes, Route, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
-import UserHome from '@/pages/user/userHome';
+import UserHome from '@/pages/user/UserHome';
 import MedicalHistory from '@/pages/user/MedicalHistory';
 import Settings from '@/pages/user/Settings';
 import FindProfessional from '@/pages/user/FindProfessional';
-import UserProfile from '@/pages/user/userProfile';
+import UserProfile from '@/pages/user/UserProfile';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, LayoutDashboard, Stethoscope, FileText, User, Settings as SettingsIcon, Bell, Home } from 'lucide-react';
