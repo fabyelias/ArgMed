@@ -46,19 +46,36 @@ const MPCallback = () => {
                     throw new Error(error?.message || 'Error al intercambiar token con Mercado Pago.');
                 }
 
-                // If success, update the local verification status to 'submitted' if it was pending
-                // This ensures ProfessionalDashboard doesn't immediately bounce if not yet approved
-                // But ProfessionalOnboarding handles the "waiting" state visually.
-                
-                setStatus('success');
-                toast({
-                    title: "Cuenta Vinculada",
-                    description: "Tu cuenta de Mercado Pago ha sido conectada exitosamente.",
-                    className: "bg-green-600 text-white"
-                });
-                
-                // Important: Redirect to ONBOARDING, not dashboard, so we see Step 3
-                setTimeout(() => navigate('/professional/onboarding', { replace: true }), 1500);
+                // Auto-activate professional account after successful MP connection
+                setStatus('activating');
+
+                // Wait 30 seconds before activating
+                setTimeout(async () => {
+                    try {
+                        const { error: updateError } = await supabase
+                            .from('professionals')
+                            .update({
+                                verification_status: 'approved',
+                                is_active: true
+                            })
+                            .eq('id', user.id);
+
+                        if (updateError) throw updateError;
+
+                        setStatus('success');
+                        toast({
+                            title: "¡Cuenta Activada!",
+                            description: "Tu perfil profesional ha sido activado exitosamente.",
+                            className: "bg-green-600 text-white"
+                        });
+
+                        setTimeout(() => navigate('/professional/dashboard', { replace: true }), 2000);
+                    } catch (activationError) {
+                        console.error("Activation error:", activationError);
+                        setStatus('error');
+                        setErrorMsg("Error al activar la cuenta. Por favor contacta soporte.");
+                    }
+                }, 30000); // 30 seconds
 
             } catch (err) {
                 console.error("MP Callback Error:", err);
@@ -80,11 +97,26 @@ const MPCallback = () => {
                 </>
             )}
 
+            {status === 'activating' && (
+                <>
+                    <CheckCircle className="w-16 h-16 text-green-500 mb-4 animate-pulse" />
+                    <h2 className="text-2xl font-bold text-green-400">¡Cuenta Vinculada!</h2>
+                    <p className="text-gray-300 mt-2">Tu perfil se activará en los próximos minutos...</p>
+                    <div className="mt-6 bg-slate-900/50 border border-slate-800 rounded-lg p-4 max-w-md">
+                        <p className="text-sm text-gray-400">
+                            Estamos verificando tu cuenta de Mercado Pago.
+                            <br />
+                            <span className="text-cyan-400 font-semibold">Tu perfil se activará automáticamente en unos segundos.</span>
+                        </p>
+                    </div>
+                </>
+            )}
+
             {status === 'success' && (
                 <>
                     <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-                    <h2 className="text-2xl font-bold text-green-400">¡Vinculación Exitosa!</h2>
-                    <p className="text-gray-300 mt-2">Redirigiendo a estado de cuenta...</p>
+                    <h2 className="text-2xl font-bold text-green-400">¡Cuenta Activada!</h2>
+                    <p className="text-gray-300 mt-2">Redirigiendo al dashboard profesional...</p>
                 </>
             )}
 

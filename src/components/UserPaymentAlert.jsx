@@ -20,7 +20,7 @@ const UserPaymentAlert = () => {
         // Corrected query with new schema relations
         const { data, error } = await supabase
           .from('consultations')
-          .select('id,consultation_fee,professional:professional_id(full_name)')
+          .select('id,consultation_fee,professionals:professional_id(full_name)')
           .eq('patient_id', user.id)
           .eq('status', 'accepted')
           .eq('payment_status', 'pending')
@@ -80,7 +80,7 @@ const UserPaymentAlert = () => {
           <div className="flex-1">
             <AlertTitle className="text-white font-bold mb-1">Pago Pendiente</AlertTitle>
             <AlertDescription className="text-slate-300 text-sm mb-3">
-              Tenés una consulta aceptada con <span className="text-yellow-400 font-medium">Dr. {pendingConsultation.professional?.full_name}</span>.
+              Tenés una consulta aceptada con <span className="text-yellow-400 font-medium">{pendingConsultation.professionals?.full_name}</span>.
             </AlertDescription>
             
             <Button 

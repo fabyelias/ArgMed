@@ -369,7 +369,10 @@ const ProfessionalOnboarding = () => {
         className: "bg-green-600 text-white"
       });
 
-      await checkProgress(false);
+      // Small delay to ensure database updates are complete
+      setTimeout(() => {
+        checkProgress(false);
+      }, 500);
 
     } catch (error) {
       console.error(error);
@@ -625,6 +628,13 @@ const ProfessionalOnboarding = () => {
               </Button>
                <Button variant="ghost" onClick={() => checkProgress(false)} className="text-xs text-gray-500">
                 <RefreshCw className="w-3 h-3 mr-2" /> He completado la vinculación
+              </Button>
+              <Button
+                variant="outline"
+                onClick={autoApprove}
+                className="w-full border-yellow-600 text-yellow-600 hover:bg-yellow-600 hover:text-white text-xs"
+              >
+                Omitir por ahora y activar cuenta
               </Button>
             </CardFooter>
           </Card>
