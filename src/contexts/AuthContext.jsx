@@ -244,13 +244,16 @@ export const AuthProvider = ({ children }) => {
 
         if (role === 'doctor') {
           // Fixed: Added profile_id to ensure foreign key constraints are met
-          await supabase.from('professionals').insert([{ 
+          await supabase.from('professionals').insert([{
             id: data.user.id,
-            profile_id: data.user.id, 
-            specialization: additionalData.specialization || 'General',
-            license_number: additionalData.medicalLicense || '',
+            profile_id: data.user.id,
+            email: finalEmail,
+            professional_type: additionalData.profession || 'General', // NEW: Free text profession field
+            specialization: additionalData.profession || 'General', // Keep for backward compatibility
+            license_number: '', // Will be filled during onboarding
             is_active: false,
-            verification_status: 'pending'
+            verification_status: 'pending',
+            consultation_fee: additionalData.consultationFee || 0
           }]);
         } else if (role === 'patient') {
           await supabase.from('users').insert([{ 

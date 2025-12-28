@@ -38,8 +38,8 @@ const AuthPage = () => {
     password: '',
     confirmPassword: '',
     fullName: '', 
-    specialization: '',
-    medicalLicense: ''
+    profession: '', // Changed from specialization - free text field for any profession
+    professionalLicense: '' // Changed from medicalLicense - not required in registration
   });
 
   const handleInputChange = (e) => {
@@ -118,8 +118,7 @@ const AuthPage = () => {
           dni: formData.dni,
           termsAcceptedAt: new Date().toISOString(),
           ...(role === 'doctor' && {
-            specialization: formData.specialization,
-            medicalLicense: formData.medicalLicense,
+            profession: formData.profession, // Free text field for any profession type
             consultationFee: 0,
             isActive: false
           })
@@ -300,15 +299,17 @@ const AuthPage = () => {
                                 <Input name="email" type="email" required value={formData.email} onChange={handleInputChange} className="bg-slate-950 border-gray-700 pl-9 h-10" />
                             </div>
                          </div>
-                         <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <Label className="text-xs text-gray-400">Especialidad</Label>
-                                <Input name="specialization" required value={formData.specialization} onChange={handleInputChange} className="bg-slate-950 border-gray-700 h-9" />
-                            </div>
-                            <div>
-                                <Label className="text-xs text-gray-400">Matrícula</Label>
-                                <Input name="medicalLicense" required value={formData.medicalLicense} onChange={handleInputChange} className="bg-slate-950 border-gray-700 h-9" />
-                            </div>
+                         <div>
+                            <Label className="text-xs text-gray-400">Profesión u Oficio</Label>
+                            <Input
+                                name="profession"
+                                required
+                                value={formData.profession}
+                                onChange={handleInputChange}
+                                className="bg-slate-950 border-gray-700 h-9"
+                                placeholder="Ej: Médico, Abogado, Psicólogo, Gasista, Electricista..."
+                            />
+                            <p className="text-[10px] text-gray-500 mt-1">Ingresa tu profesión, especialidad u oficio</p>
                          </div>
                      </div>
                   )}
