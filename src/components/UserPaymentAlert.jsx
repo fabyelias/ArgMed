@@ -21,7 +21,7 @@ const UserPaymentAlert = () => {
         const { data, error } = await supabase
           .from('consultations')
           .select('id,consultation_fee,professional:professional_id(full_name)')
-          .eq('user_id', user.id)
+          .eq('patient_id', user.id)
           .eq('status', 'accepted')
           .eq('payment_status', 'pending')
           .maybeSingle();
@@ -48,7 +48,7 @@ const UserPaymentAlert = () => {
           event: '*',
           schema: 'public',
           table: 'consultations',
-          filter: `user_id=eq.${user.id}`,
+          filter: `patient_id=eq.${user.id}`,
         },
         () => {
           checkPendingPayments();
