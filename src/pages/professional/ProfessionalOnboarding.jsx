@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle, FileText, CreditCard, ShieldCheck,
-  Upload, Loader2, RefreshCw, ExternalLink, FileCheck
+  Upload, Loader2, RefreshCw, ExternalLink, FileCheck, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,11 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { initMercadoPago } from '@mercadopago/sdk-react';
 import TermsAndConditions from '@/components/TermsAndConditions';
+import { processImageFile } from '@/lib/imageCompression';
 
 const ProfessionalOnboarding = () => {
   const { user, logout } = useAuth();
@@ -24,7 +26,9 @@ const ProfessionalOnboarding = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0); // Changed to 0-indexed: 0=Terms, 1=Docs, 2=MP
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [mpProcessing, setMpProcessing] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
 
   // Data State
   const [documents, setDocuments] = useState(null);
@@ -231,23 +235,82 @@ const ProfessionalOnboarding = () => {
     }
   };
 
-  const handleFileUpload = (e, key) => {
-    if (e.target.files?.[0]) {
-      setDocFiles(prev => ({ ...prev, [key]: e.target.files[0] }));
+  const handleFileUpload = async (e, key) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Process and validate the file
+      const result = await processImageFile(file);
+
+      if (!result.valid) {
+        toast({
+          title: "Archivo inválido",
+          description: result.error,
+          variant: "destructive"
+        });
+        // Clear the input
+        e.target.value = '';
+        return;
+      }
+
+      // Use the processed (compressed) file
+      setDocFiles(prev => ({ ...prev, [key]: result.file }));
+
+      toast({
+        title: "Archivo cargado",
+        description: `${file.name} listo para subir`,
+        className: "bg-green-600 text-white"
+      });
+    } catch (error) {
+      console.error("File handling error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo procesar el archivo",
+        variant: "destructive"
+      });
+      e.target.value = '';
     }
   };
 
   const uploadFileToStorage = async (file, path) => {
     if (!file) return null;
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}/${path}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-    const { error } = await supabase.storage.from('doctor-documents').upload(fileName, file);
+    // Retry logic for network failures
+    let retries = 3;
+    let lastError;
 
-    if (error) throw error;
+    while (retries > 0) {
+      try {
+        const { error } = await supabase.storage
+          .from('doctor-documents')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-    const { data } = supabase.storage.from('doctor-documents').getPublicUrl(fileName);
-    return data.publicUrl;
+        if (error) throw error;
+
+        const { data } = supabase.storage
+          .from('doctor-documents')
+          .getPublicUrl(fileName);
+
+        return data.publicUrl;
+      } catch (error) {
+        lastError = error;
+        retries--;
+
+        if (retries > 0) {
+          console.log(`Upload failed, retrying... (${retries} attempts left)`);
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+        }
+      }
+    }
+
+    throw lastError;
   };
 
   const ensureProfessionalRecordExists = async () => {
@@ -298,6 +361,9 @@ const ProfessionalOnboarding = () => {
 
   const submitDocuments = async () => {
     setUploading(true);
+    setUploadProgress(0);
+    setNetworkError(false);
+
     try {
       // Validate inputs
       if (!documents && (!docFiles.title_document || !docFiles.dni_front || !docFiles.dni_back)) {
@@ -308,20 +374,42 @@ const ProfessionalOnboarding = () => {
         throw new Error("Debes ingresar al menos un número de matrícula (Nacional o Provincial).");
       }
 
+      setUploadProgress(10);
       await ensureProfessionalRecordExists();
 
-      // Upload files
+      setUploadProgress(20);
+
+      // Upload files with progress tracking
       let titleUrl = documents?.title_document;
       let dniFrontUrl = documents?.dni_front;
       let dniBackUrl = documents?.dni_back;
 
-      if (docFiles.title_document) titleUrl = await uploadFileToStorage(docFiles.title_document, 'title');
-      if (docFiles.dni_front) dniFrontUrl = await uploadFileToStorage(docFiles.dni_front, 'dni_front');
-      if (docFiles.dni_back) dniBackUrl = await uploadFileToStorage(docFiles.dni_back, 'dni_back');
+      const totalFiles = [docFiles.title_document, docFiles.dni_front, docFiles.dni_back].filter(Boolean).length;
+      let uploadedFiles = 0;
+
+      if (docFiles.title_document) {
+        titleUrl = await uploadFileToStorage(docFiles.title_document, 'title');
+        uploadedFiles++;
+        setUploadProgress(20 + (uploadedFiles / totalFiles) * 60);
+      }
+
+      if (docFiles.dni_front) {
+        dniFrontUrl = await uploadFileToStorage(docFiles.dni_front, 'dni_front');
+        uploadedFiles++;
+        setUploadProgress(20 + (uploadedFiles / totalFiles) * 60);
+      }
+
+      if (docFiles.dni_back) {
+        dniBackUrl = await uploadFileToStorage(docFiles.dni_back, 'dni_back');
+        uploadedFiles++;
+        setUploadProgress(20 + (uploadedFiles / totalFiles) * 60);
+      }
 
       if (!titleUrl || !dniFrontUrl || !dniBackUrl) {
          throw new Error("Error al procesar los archivos. Inténtalo de nuevo.");
       }
+
+      setUploadProgress(85);
 
       const payload = {
         professional_id: user.id,
@@ -354,6 +442,8 @@ const ProfessionalOnboarding = () => {
         if (insertError) throw insertError;
       }
 
+      setUploadProgress(95);
+
       // Update professional license number
       await supabase
         .from('professionals')
@@ -363,26 +453,37 @@ const ProfessionalOnboarding = () => {
         })
         .eq('id', user.id);
 
+      setUploadProgress(100);
+
       toast({
         title: "Documentos enviados",
         description: "Tus documentos se han guardado correctamente.",
         className: "bg-green-600 text-white"
       });
 
-      // Small delay to ensure database updates are complete
-      setTimeout(() => {
-        checkProgress(false);
-      }, 500);
+      // Wait for database to sync, then check progress
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await checkProgress(false);
 
     } catch (error) {
-      console.error(error);
+      console.error("Submit documents error:", error);
+      setNetworkError(true);
+
+      let errorMessage = error.message || "Error desconocido";
+
+      // Detect network errors
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage = "Error de conexión. Verifica tu internet e intenta nuevamente.";
+      }
+
       toast({
         title: "Error al subir documentos",
-        description: error.message || "Error desconocido",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -582,10 +683,27 @@ const ProfessionalOnboarding = () => {
                  </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-3">
+              {uploading && uploadProgress > 0 && (
+                <div className="w-full space-y-2">
+                  <Progress value={uploadProgress} className="h-2" />
+                  <p className="text-xs text-center text-gray-400">
+                    Subiendo archivos... {Math.round(uploadProgress)}%
+                  </p>
+                </div>
+              )}
+              {networkError && (
+                <Alert className="bg-red-900/20 border-red-500/30">
+                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                  <AlertTitle className="text-red-400">Error de conexión</AlertTitle>
+                  <AlertDescription className="text-gray-300 text-xs">
+                    Verifica tu conexión a internet e intenta nuevamente.
+                  </AlertDescription>
+                </Alert>
+              )}
               <Button onClick={submitDocuments} disabled={uploading} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold h-12">
                 {uploading ? <Loader2 className="animate-spin mr-2" /> : <Upload className="mr-2 w-4 h-4" />}
-                Guardar y Continuar
+                {uploading ? 'Subiendo...' : 'Guardar y Continuar'}
               </Button>
             </CardFooter>
           </Card>

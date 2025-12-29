@@ -128,28 +128,50 @@ const AuthPage = () => {
       const registerIdentifier = role === 'patient' ? formData.dni : formData.email;
 
       const result = await register(registerIdentifier, formData.password, role, additionalData);
-      
+
       if (result.success) {
-          toast({ 
-              title: "¡Cuenta creada!", 
-              description: role === 'patient' ? "Ya puedes ingresar con tu DNI." : "Completa tu perfil profesional." 
+          toast({
+              title: "¡Cuenta creada!",
+              description: role === 'patient' ? "Ya puedes ingresar con tu DNI." : "Redirigiendo a completar perfil..."
           });
-          
+
           if (role === 'doctor') {
-              // Direct login attempt to streamline
-              const loginResult = await login(formData.email, formData.password);
-              if (loginResult.success) {
-                  navigate('/professional/onboarding'); // NEW: Redirect to Onboarding
-              } else {
-                  setIsLogin(true); // Fallback if auto-login fails
+              // Keep loading state active during auto-login
+              try {
+                  const loginResult = await login(formData.email, formData.password);
+                  if (loginResult.success) {
+                      // Small delay to ensure user sees success message
+                      setTimeout(() => {
+                          navigate('/professional/onboarding');
+                      }, 1000);
+                  } else {
+                      console.error("Auto-login failed:", loginResult.error);
+                      toast({
+                          title: "Cuenta creada exitosamente",
+                          description: "Por favor inicia sesión con tu email y contraseña.",
+                          className: "bg-green-600 text-white"
+                      });
+                      setIsLogin(true);
+                      setLoading(false);
+                  }
+              } catch (error) {
+                  console.error("Auto-login error:", error);
+                  toast({
+                      title: "Cuenta creada",
+                      description: "Inicia sesión para continuar.",
+                      className: "bg-green-600 text-white"
+                  });
+                  setIsLogin(true);
+                  setLoading(false);
               }
           } else {
               setIsLogin(true);
+              setLoading(false);
           }
       } else {
           toast({ title: "Error de registro", description: result.error, variant: "destructive" });
+          setLoading(false);
       }
-      setLoading(false);
   };
 
   return (
