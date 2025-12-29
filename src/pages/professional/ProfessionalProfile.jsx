@@ -1,5 +1,5 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
-import { Stethoscope, Upload, CreditCard, Loader2, AlertTriangle, CheckCircle, Users, FileText, Bell } from 'lucide-react';
+﻿import { useState, useRef, useEffect } from 'react';
+import { Stethoscope, Upload, Loader2, Users, FileText, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import DoctorMPConnectPrompt from '@/components/DoctorMPConnectPrompt'; 
 
 const ProfessionalProfile = () => {
@@ -17,24 +16,18 @@ const ProfessionalProfile = () => {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isActive, setIsActive] = useState(false);
-  const [showAliasConfirm, setShowAliasConfirm] = useState(false);
   const fileInputRef = useRef(null);
-  
-  const [verifyingAlias, setVerifyingAlias] = useState(false);
-  const [aliasVerified, setAliasVerified] = useState(false);
-  const [aliasError, setAliasError] = useState(null);
-  
+
   const [consultations, setConsultations] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [users, setUsers] = useState([]);
 
-  const [formData, setFormData] = useState({ fullName: '', specialization: '', medicalLicense: '', consultationFee: '', paymentAlias: '', bio: '' });
+  const [formData, setFormData] = useState({ fullName: '', specialization: '', medicalLicense: '', consultationFee: '', bio: '' });
 
   useEffect(() => {
     if (user) {
-      setFormData({ fullName: user.full_name || '', specialization: user.specialization || '', medicalLicense: user.license_number || '', consultationFee: user.consultation_fee || 50, paymentAlias: user.payment_alias || '', bio: user.bio || '' });
+      setFormData({ fullName: user.full_name || '', specialization: user.specialization || '', medicalLicense: user.license_number || '', consultationFee: user.consultation_fee || 50, bio: user.bio || '' });
       setIsActive(user.is_active === true);
-      setAliasVerified(user.alias_verified === true);
       fetchLiveData();
       subscribeToRealtime();
     }
@@ -81,32 +74,25 @@ const ProfessionalProfile = () => {
       return () => { supabase.removeChannel(sub1); supabase.removeChannel(sub2); }
   };
 
-  const handleVerifyAlias = async () => {
-    if (!formData.paymentAlias) return setAliasError("Ingresa un alias.");
-    setVerifyingAlias(true); setAliasError(null);
+  const handleSaveProfile = async () => {
+    setSaving(true);
     try {
-      const { data, error } = await supabase.functions.invoke('validate-alias', { body: JSON.stringify({ alias: formData.paymentAlias, alias_type: 'alias' }) });
-      if (error) throw error;
-      if (data.is_valid) { setAliasVerified(true); toast({ title: "Verificado", className: "bg-green-600 text-white" }); } 
-      else { setAliasVerified(false); setAliasError(data.message || "Alias inválido."); }
-    } catch (err) { setAliasError("No se pudo validar."); setAliasVerified(false); } finally { setVerifyingAlias(false); }
-  };
-
-  const handleSaveAttempt = () => {
-    if (formData.paymentAlias && !aliasVerified) return toast({ title: "Verifica tu alias", variant: "destructive" });
-    setShowAliasConfirm(true);
-  };
-  
-  const handleConfirmSave = async () => {
-    setShowAliasConfirm(false); setSaving(true);
-    try {
-        const result = await updateProfile({ fullName: formData.fullName, specialization: formData.specialization, medicalLicense: formData.medicalLicense, consultationFee: formData.consultationFee, paymentAlias: formData.paymentAlias, bio: formData.bio });
+        const result = await updateProfile({
+          fullName: formData.fullName,
+          specialization: formData.specialization,
+          medicalLicense: formData.medicalLicense,
+          consultationFee: formData.consultationFee,
+          bio: formData.bio
+        });
         if (!result.success) throw new Error(result.error);
-        
-        await supabase.from('professionals').update({ alias_verified: aliasVerified, alias_verified_at: aliasVerified ? new Date().toISOString() : null }).eq('id', user.id);
-        
-        toast({ title: "Perfil actualizado", className: "bg-green-600 text-white" }); setEditing(false);
-    } catch (e) { toast({ title: "Error", description: e.message, variant: "destructive" }); } finally { setSaving(false); }
+
+        toast({ title: "Perfil actualizado", className: "bg-green-600 text-white" });
+        setEditing(false);
+    } catch (e) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleActive = async () => {
@@ -155,16 +141,7 @@ const ProfessionalProfile = () => {
                             <Label htmlFor="consultationFee" className="text-xs">Tarifa ($)</Label>
                             <Input id="consultationFee" name="consultationFee" type="number" value={formData.consultationFee} onChange={(e) => setFormData({...formData, consultationFee: e.target.value})} className="bg-slate-950 border-slate-700 h-9" />
                         </div>
-                        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                            <p className="text-xs font-bold text-white flex items-center gap-2"><CreditCard className="w-3 h-3 text-cyan-400" /> Cobro</p>
-                            <div>
-                                <Label htmlFor="paymentAlias" className="text-[10px] text-gray-400">Alias CBU/CVU</Label>
-                                <Input id="paymentAlias" name="paymentAlias" value={formData.paymentAlias} onChange={(e) => { setFormData({...formData, paymentAlias: e.target.value}); setAliasVerified(false); }} className={`bg-slate-900 h-8 text-sm ${aliasVerified ? 'border-green-500 text-green-400' : 'border-slate-700'}`} />
-                            </div>
-                            {aliasError && <p className="text-[10px] text-red-400">{aliasError}</p>}
-                            {aliasVerified ? <div className="text-green-400 text-xs font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Verificado</div> : <Button onClick={handleVerifyAlias} disabled={verifyingAlias || !formData.paymentAlias} size="sm" variant="secondary" className="w-full h-8 text-xs">{verifyingAlias ? '...' : 'Verificar'}</Button>}
-                        </div>
-                        <div className="flex gap-2"><Button onClick={() => setEditing(false)} variant="outline" size="sm" className="flex-1 border-slate-700" disabled={saving}>Cancelar</Button><Button onClick={handleSaveAttempt} size="sm" className="flex-1 bg-green-600 hover:bg-green-700" disabled={saving}>{saving ? "..." : "Guardar"}</Button></div>
+                        <div className="flex gap-2"><Button onClick={() => setEditing(false)} variant="outline" size="sm" className="flex-1 border-slate-700" disabled={saving}>Cancelar</Button><Button onClick={handleSaveProfile} size="sm" className="flex-1 bg-green-600 hover:bg-green-700" disabled={saving}>{saving ? "..." : "Guardar"}</Button></div>
                         <input id="professional-photo" name="professional-photo" type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
                      </div>
                 ) : (
@@ -217,9 +194,6 @@ const ProfessionalProfile = () => {
             </Tabs>
         </div>
       </div>
-      <AlertDialog open={showAliasConfirm} onOpenChange={setShowAliasConfirm}>
-          <AlertDialogContent className="bg-slate-900 border-cyan-800 text-white"><AlertDialogHeader><AlertDialogTitle>Confirmar Alias</AlertDialogTitle><AlertDialogDescription>¿El alias <b>{formData.paymentAlias}</b> es correcto?</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>No</AlertDialogCancel><AlertDialogAction onClick={handleConfirmSave}>Sí</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
