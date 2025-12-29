@@ -141,12 +141,12 @@ const DoctorLayout = ({ children }) => {
   };
 
   const navItems = [
-    { icon: Home, label: 'Inicio', path: '/doctor' },
-    { icon: Bell, label: 'Notificaciones', path: '/doctor/notifications', badge: unreadCount },
-    { icon: Video, label: 'Solicitudes', path: '/doctor/requests' },
-    { icon: Calendar, label: 'Historial', path: '/doctor/history' },
-    { icon: User, label: 'Perfil', path: '/doctor/profile' },
-    { icon: Settings, label: 'Configuración', path: '/doctor/settings' },
+    { icon: Home, label: 'Inicio', path: '/professional/dashboard' },
+    { icon: Bell, label: 'Notificaciones', path: '/professional/notifications', badge: unreadCount },
+    { icon: Video, label: 'Solicitudes', path: '/professional/requests' },
+    { icon: Calendar, label: 'Historial', path: '/professional/history' },
+    { icon: User, label: 'Perfil', path: '/professional/profile' },
+    { icon: Settings, label: 'Configuración', path: '/professional/settings' },
   ];
 
   return (
