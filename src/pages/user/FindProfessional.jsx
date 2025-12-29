@@ -182,7 +182,7 @@ const FindProfessional = () => {
                              // This is the query matching your description
                              const { data: cons } = await supabase.from('consultations')
                                 .select('id')
-                                .eq('professional_id', payload.new.current_doctor_id)
+                                .eq('doctor_id', payload.new.current_doctor_id)
                                 .eq('patient_id', user.id)
                                 .eq('status', 'accepted')
                                 .in('payment_status', ['pending', 'unpaid'])
@@ -238,17 +238,17 @@ const FindProfessional = () => {
             const { data: existing } = await supabase.from('consultations')
                 .select('id')
                 .eq('patient_id', user.id)
-                .eq('professional_id', professional.id)
+                .eq('doctor_id', professional.id)
                 .eq('status', 'pending')
                 .maybeSingle();
-            
+
             if (existing) {
                 toast({ title: "Ya enviaste una solicitud a este profesional", description: "Espera a que te responda." });
                 return;
             }
 
             const { data } = await supabase.from('consultations').insert({
-                professional_id: professional.id,
+                doctor_id: professional.id,
                 patient_id: user.id,
                 status: 'pending',
                 payment_status: 'unpaid',

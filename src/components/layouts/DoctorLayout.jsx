@@ -89,7 +89,7 @@ const DoctorLayout = ({ children }) => {
 
           if (incomingRequest.type === 'smart') {
               const { data: newConsultation, error: createError } = await supabase.from('consultations').insert({
-                  professional_id: user.id,
+                  doctor_id: user.id,
                   patient_id: patientId,
                   status: 'accepted',
                   payment_status: 'unpaid',

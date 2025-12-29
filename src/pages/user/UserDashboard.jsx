@@ -44,7 +44,7 @@ const UserDashboard = () => {
                 .from('consultations')
                 .select(`
                     *,
-                    professional:professional_id (
+                    doctor:doctor_id (
                         full_name
                     )
                 `)
