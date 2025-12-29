@@ -23,10 +23,10 @@ const UserDashboard = () => {
     useEffect(() => {
         if (user) {
             fetchPendingConsultations();
-            
+
             const channel = supabase
-                .channel(`consultations:user_id=eq.${user.id}`)
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `user_id=eq.${user.id}` }, payload => {
+                .channel(`consultations:patient_id=eq.${user.id}`)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `patient_id=eq.${user.id}` }, payload => {
                     fetchPendingConsultations();
                 })
                 .subscribe();
@@ -48,7 +48,7 @@ const UserDashboard = () => {
                         full_name
                     )
                 `)
-                .eq('user_id', user.id)
+                .eq('patient_id', user.id)
                 .eq('status', 'accepted')
                 .in('payment_status', ['pending', 'unpaid']);
             

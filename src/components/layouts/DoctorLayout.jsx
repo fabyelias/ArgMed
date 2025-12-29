@@ -88,31 +88,52 @@ const DoctorLayout = ({ children }) => {
           if (!patientId) throw new Error("Error: Identificador de usuario no encontrado.");
 
           if (incomingRequest.type === 'smart') {
-              const { error: createError } = await supabase.from('consultations').insert({
-                  doctor_id: user.id,
+              const { data: newConsultation, error: createError } = await supabase.from('consultations').insert({
+                  professional_id: user.id,
                   patient_id: patientId,
                   status: 'accepted',
-                  payment_status: 'unpaid', 
+                  payment_status: 'unpaid',
                   consultation_fee: user.consultation_fee,
                   reason: incomingRequest.reason || 'Atención Inmediata',
                   created_at: new Date().toISOString()
-              });
-              
+              }).select().single();
+
               if (createError) throw new Error("Error al crear la sesión en base de datos.");
 
               const { error: updateError } = await supabase.from('consultation_requests').update({ status: 'matched', current_doctor_id: user.id }).eq('id', incomingRequest.requestId);
               if (updateError) throw updateError;
-              
+
+              // Notificar al paciente que debe pagar
+              await supabase.from('notifications').insert({
+                  user_id: patientId,
+                  type: 'consultation_accepted',
+                  title: '¡Profesional Encontrado!',
+                  message: `${user.full_name} aceptó tu solicitud. Procede al pago para iniciar la videollamada.`,
+                  payload: { consultationId: newConsultation.id },
+                  is_read: false
+              });
+
               toast({ title: "¡Solicitud Aceptada!", description: "Esperando pago del usuario...", className: "bg-green-600 text-white" });
               setIncomingRequest(null);
-              navigate('/doctor');
+              navigate('/professional/dashboard');
                  
           } else {
               const { error } = await supabase.from('consultations').update({ status: 'accepted', consultation_fee: user.consultation_fee }).eq('id', incomingRequest.consultationId);
               if (error) throw error;
+
+              // Notificar al paciente que debe pagar
+              await supabase.from('notifications').insert({
+                  user_id: patientId,
+                  type: 'consultation_accepted',
+                  title: 'Solicitud Aceptada',
+                  message: `${user.full_name} aceptó tu solicitud. Procede al pago para iniciar la videollamada.`,
+                  payload: { consultationId: incomingRequest.consultationId },
+                  is_read: false
+              });
+
               toast({ title: "¡Solicitud Aceptada!", description: "Esperando pago del usuario...", className: "bg-green-600 text-white" });
               setIncomingRequest(null);
-              navigate('/doctor');
+              navigate('/professional/dashboard');
           }
       } catch (e) {
           console.error(e);
