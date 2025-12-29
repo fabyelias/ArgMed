@@ -54,13 +54,14 @@ const ProfessionalDashboard = () => {
     <DoctorLayout>
       <Routes>
         <Route index element={<DoctorHome />} />
+        <Route path="dashboard" element={<DoctorHome />} />
         <Route path="profile" element={<ProfessionalProfile />} />
         <Route path="requests" element={<Requests />} />
         <Route path="history" element={<ConsultationHistory />} />
         <Route path="settings" element={<DoctorSettings />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="consultation/:id" element={<ActiveConsultation />} />
-        <Route path="*" element={<Navigate to="/professional" replace />} />
+        <Route path="*" element={<Navigate to="/professional/dashboard" replace />} />
       </Routes>
     </DoctorLayout>
   );
