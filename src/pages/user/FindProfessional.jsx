@@ -101,7 +101,7 @@ const FindProfessional = () => {
             const { data: reqData, error: reqError } = await supabase
                 .from('consultation_requests')
                 .insert({
-                    user_id: user.id,
+                    patient_id: user.id,
                     specialty: specialtyFilter,
                     status: 'searching'
                 })
@@ -152,7 +152,7 @@ const FindProfessional = () => {
         setContactedProfessionals(prev => [...prev, nextDoc.profiles?.full_name]);
 
         await supabase.from('consultation_requests')
-            .update({ current_professional_id: nextDoc.id }) 
+            .update({ current_doctor_id: nextDoc.id })
             .eq('id', requestId);
 
         await supabase.from('notifications').insert({
@@ -182,8 +182,8 @@ const FindProfessional = () => {
                              // This is the query matching your description
                              const { data: cons } = await supabase.from('consultations')
                                 .select('id')
-                                .eq('professional_id', payload.new.current_professional_id)
-                                .eq('user_id', user.id)
+                                .eq('professional_id', payload.new.current_doctor_id)
+                                .eq('patient_id', user.id)
                                 .eq('status', 'accepted')
                                 .in('payment_status', ['pending', 'unpaid'])
                                 .order('created_at', { ascending: false })
@@ -209,12 +209,12 @@ const FindProfessional = () => {
 
         setTimeout(async () => {
             const { data: currentReq } = await supabase.from('consultation_requests').select('*').eq('id', requestId).single();
-            
-            if (currentReq && currentReq.status === 'searching' && currentReq.current_professional_id === nextDoc.id) {
+
+            if (currentReq && currentReq.status === 'searching' && currentReq.current_doctor_id === nextDoc.id) {
                  const newRejected = [...rejectedIds, nextDoc.id];
-                 
+
                  await supabase.from('consultation_requests')
-                    .update({ rejected_professional_ids: newRejected, current_professional_id: null })
+                    .update({ rejected_doctor_ids: newRejected, current_doctor_id: null })
                     .eq('id', requestId);
 
                  supabase.removeChannel(channel);
@@ -237,7 +237,7 @@ const FindProfessional = () => {
         try {
             const { data: existing } = await supabase.from('consultations')
                 .select('id')
-                .eq('user_id', user.id)
+                .eq('patient_id', user.id)
                 .eq('professional_id', professional.id)
                 .eq('status', 'pending')
                 .maybeSingle();
@@ -249,7 +249,7 @@ const FindProfessional = () => {
 
             const { data } = await supabase.from('consultations').insert({
                 professional_id: professional.id,
-                user_id: user.id,
+                patient_id: user.id,
                 status: 'pending',
                 payment_status: 'unpaid',
                 consultation_fee: professional.consultation_fee,
