@@ -15,8 +15,8 @@ const IncomingRequests = () => {
     setLoading(true);
     const { data } = await supabase
       .from('consultations')
-      .select('*, user:user_id(full_name, photo_url)')
-      .eq('professional_id', user.id)
+      .select('*, users:patient_id(full_name, photo_url)')
+      .eq('doctor_id', user.id)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
     
@@ -94,14 +94,14 @@ const IncomingRequests = () => {
               >
                 <div className="flex items-start gap-4 w-full md:w-auto">
                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {req.user?.photo_url ? (
-                        <img src={req.user.photo_url} alt="Patient" className="w-full h-full object-cover" />
+                      {req.users?.photo_url ? (
+                        <img src={req.users.photo_url} alt="Patient" className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-7 h-7 text-white" />
                       )}
                    </div>
                    <div>
-                     <h3 className="text-lg font-bold text-white">{req.user?.full_name || 'Usuario'}</h3>
+                     <h3 className="text-lg font-bold text-white">{req.users?.full_name || 'Usuario'}</h3>
                      
                      <div className="flex items-center gap-2 text-sm text-cyan-400 mb-2">
                         <span className="font-semibold">Honorarios: ${req.consultation_fee}</span>

@@ -42,13 +42,13 @@ const DoctorProfile = () => {
 
   const fetchLiveData = async () => {
      try {
-        const { data: cons } = await supabase.from('consultations').select('*, user:user_id(full_name)').eq('professional_id', user.id).order('updated_at', { ascending: false });
+        const { data: cons } = await supabase.from('consultations').select('*, users:patient_id(full_name)').eq('doctor_id', user.id).order('updated_at', { ascending: false });
         setConsultations(cons || []);
         const uniquePats = new Map();
         cons?.forEach(c => {
-            if (c.status === 'completed' && c.user) {
-                if (!uniquePats.has(c.user_id)) { uniquePats.set(c.user_id, { name: c.user.full_name, count: 1, lastDate: c.created_at }); } 
-                else { uniquePats.get(c.user_id).count += 1; }
+            if (c.status === 'completed' && c.users) {
+                if (!uniquePats.has(c.patient_id)) { uniquePats.set(c.patient_id, { name: c.users.full_name, count: 1, lastDate: c.created_at }); }
+                else { uniquePats.get(c.patient_id).count += 1; }
             }
         });
         setPatients(Array.from(uniquePats.values()));
@@ -58,7 +58,7 @@ const DoctorProfile = () => {
   };
 
   const subscribeToRealtime = () => {
-      const sub1 = supabase.channel('prof-profile-cons').on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `professional_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
+      const sub1 = supabase.channel('prof-profile-cons').on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `doctor_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
       const sub2 = supabase.channel('prof-profile-notifs').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
       return () => { supabase.removeChannel(sub1); supabase.removeChannel(sub2); }
   };
@@ -171,7 +171,7 @@ const DoctorProfile = () => {
                 <TabsContent value="consultations" className="space-y-3">
                     {consultations.map(c => (
                         <div key={c.id} className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div><p className="font-bold text-white text-sm">{c.user?.full_name || 'Usuario'}</p><p className="text-xs text-gray-400">{new Date(c.updated_at).toLocaleDateString()} • ${c.consultation_fee}</p></div>
+                            <div><p className="font-bold text-white text-sm">{c.users?.full_name || 'Usuario'}</p><p className="text-xs text-gray-400">{new Date(c.updated_at).toLocaleDateString()} • ${c.consultation_fee}</p></div>
                             <Badge className="text-[10px] self-start">{c.status}</Badge>
                         </div>
                      ))}

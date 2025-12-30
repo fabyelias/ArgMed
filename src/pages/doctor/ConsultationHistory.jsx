@@ -15,8 +15,8 @@ const ConsultationHistory = () => {
     
     const { data, error } = await supabase
       .from('consultations')
-      .select('*, user:user_id(full_name)')
-      .eq('professional_id', user.id)
+      .select('*, users:patient_id(full_name)')
+      .eq('doctor_id', user.id)
       .in('status', ['completed', 'finished', 'reviewed'])
       .order('ended_at', { ascending: false });
 
@@ -78,7 +78,7 @@ const ConsultationHistory = () => {
                       <User className="w-6 h-6 text-gray-400" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">{consultation.user?.full_name}</h3>
+                      <h3 className="text-lg font-semibold text-white mb-1">{consultation.users?.full_name}</h3>
                       <div className="flex items-center gap-2 mb-2">
                          <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full border border-green-500/30 flex items-center gap-1">
                              <CheckCircle className="w-3 h-3" /> Asistida

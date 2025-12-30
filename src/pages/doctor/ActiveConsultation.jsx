@@ -40,7 +40,7 @@ const ActiveConsultation = () => {
     const fetchConsultation = async () => {
       const { data, error } = await supabase
         .from('consultations')
-        .select('*, user:user_id(id, full_name, photo_url)')
+        .select('*, users:patient_id(id, full_name, photo_url)')
         .eq('id', consultationId)
         .single();
 
@@ -119,7 +119,7 @@ const ActiveConsultation = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Sesión con {consultation.user?.full_name || 'Usuario'}
+              Sesión con {consultation.users?.full_name || 'Usuario'}
             </h1>
             <Button onClick={() => navigate(`/professional/video-call-room/${consultationId}`)} className="bg-green-600 hover:bg-green-700">
                 <Video className="w-4 h-4 mr-2" />
@@ -167,10 +167,10 @@ const ActiveConsultation = () => {
               <h2 className="text-xl font-semibold text-white mb-4">Información del Usuario</h2>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                    <img src={consultation.user?.photo_url || `https://ui-avatars.com/api/?name=${consultation.user?.full_name}`} alt="user" className="w-12 h-12 rounded-full bg-slate-700"/>
+                    <img src={consultation.users?.photo_url || `https://ui-avatars.com/api/?name=${consultation.users?.full_name}`} alt="user" className="w-12 h-12 rounded-full bg-slate-700"/>
                     <div>
-                        <p className="text-white font-medium">{consultation.user?.full_name}</p>
-                        <p className="text-sm text-gray-400">ID: ...{consultation.user_id.slice(-6)}</p>
+                        <p className="text-white font-medium">{consultation.users?.full_name}</p>
+                        <p className="text-sm text-gray-400">ID: ...{consultation.patient_id.slice(-6)}</p>
                     </div>
                 </div>
               </div>
