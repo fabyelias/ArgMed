@@ -106,7 +106,7 @@ const DoctorHome = () => {
 
     const channel = supabase
       .channel('professional-dashboard')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `professional_id=eq.${user.id}` }, 
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `doctor_id=eq.${user.id}` },
         () => {
              fetchData();
         }
