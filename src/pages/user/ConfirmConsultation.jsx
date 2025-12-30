@@ -26,7 +26,7 @@ const ConfirmConsultation = () => {
                 .from('consultations')
                 .select(`
                     *,
-                    professionals:doctor_id (
+                    doctor:doctor_id (
                         full_name,
                         photo_url,
                         specialization
@@ -61,7 +61,7 @@ const ConfirmConsultation = () => {
             state: { 
                 consultationId: consultation.id,
                 amount: consultation.consultation_fee,
-                professionalName: consultation.professionals?.full_name
+                professionalName: consultation.doctor?.full_name
             }
         });
     };
@@ -81,7 +81,7 @@ const ConfirmConsultation = () => {
         </div>
     );
 
-    const professionalProfile = consultation.professionals;
+    const professionalProfile = consultation.doctor;
 
     return (
         <div className="min-h-screen bg-slate-950 p-4 flex items-center justify-center">
