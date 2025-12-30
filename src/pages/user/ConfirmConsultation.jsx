@@ -26,12 +26,10 @@ const ConfirmConsultation = () => {
                 .from('consultations')
                 .select(`
                     *,
-                    professional:professional_id (
+                    professionals:doctor_id (
                         full_name,
                         photo_url,
-                        professionals_data:professionals (
-                            specialization
-                        )
+                        specialization
                     )
                 `)
                 .eq('id', consultationId)
@@ -63,8 +61,8 @@ const ConfirmConsultation = () => {
             state: { 
                 consultationId: consultation.id,
                 amount: consultation.consultation_fee,
-                professionalName: consultation.professional?.full_name
-            } 
+                professionalName: consultation.professionals?.full_name
+            }
         });
     };
 
@@ -76,15 +74,14 @@ const ConfirmConsultation = () => {
             </div>
         );
     }
-    
+
     if (!consultation) return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950">
             <p className="text-red-400">No se pudo cargar la consulta.</p>
         </div>
     );
 
-    const professionalProfile = consultation.professional;
-    const professionalData = professionalProfile?.professionals_data?.[0] || professionalProfile?.professionals_data;
+    const professionalProfile = consultation.professionals;
 
     return (
         <div className="min-h-screen bg-slate-950 p-4 flex items-center justify-center">
@@ -113,7 +110,7 @@ const ConfirmConsultation = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-white text-lg">Dr. {professionalProfile.full_name}</h3>
-                                <p className="text-cyan-400 text-sm font-medium">{professionalData?.specialization || 'Especialista'}</p>
+                                <p className="text-cyan-400 text-sm font-medium">{professionalProfile?.specialization || 'Especialista'}</p>
                             </div>
                         </div>
                     )}
