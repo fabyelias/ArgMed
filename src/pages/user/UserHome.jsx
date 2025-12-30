@@ -64,7 +64,7 @@ const UserHome = () => {
   };
 
   const getStatusConfig = (consultation) => {
-    if (consultation.status === 'accepted' && consultation.payment_status === 'unpaid') {
+    if (consultation.status === 'accepted' && consultation.payment_status === 'pending') {
       return {
         icon: <AlertCircle className="w-5 h-5 text-yellow-500" />,
         text: 'Pago Pendiente',

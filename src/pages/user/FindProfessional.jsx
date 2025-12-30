@@ -180,7 +180,7 @@ const FindProfessional = () => {
                                 .eq('doctor_id', payload.new.current_doctor_id)
                                 .eq('patient_id', user.id)
                                 .eq('status', 'accepted')
-                                .in('payment_status', ['pending', 'unpaid'])
+                                .eq('payment_status', 'pending')
                                 .order('created_at', { ascending: false })
                                 .limit(1)
                                 .maybeSingle();
@@ -246,7 +246,7 @@ const FindProfessional = () => {
                 doctor_id: professional.id,
                 patient_id: user.id,
                 status: 'pending',
-                payment_status: 'unpaid',
+                payment_status: 'pending',
                 consultation_fee: professional.consultation_fee,
                 reason: "Solicitud Directa"
             }).select().single();

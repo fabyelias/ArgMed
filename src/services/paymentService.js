@@ -107,5 +107,5 @@ export const getPaymentStatus = async (consultationId) => {
     .eq('consultation_id', consultationId)
     .single();
   
-  return data || { status: 'unpaid', transfers_completed: false };
+  return data || { status: 'pending', transfers_completed: false };
 };

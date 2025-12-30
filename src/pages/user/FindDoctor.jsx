@@ -186,7 +186,7 @@ const FindDoctor = () => {
                                 .eq('professional_id', payload.new.current_professional_id)
                                 .eq('user_id', user.id)
                                 .eq('status', 'accepted')
-                                .in('payment_status', ['pending', 'unpaid'])
+                                .eq('payment_status', 'pending')
                                 .order('created_at', { ascending: false })
                                 .limit(1)
                                 .maybeSingle();
@@ -249,10 +249,10 @@ const FindDoctor = () => {
             }
 
             const { data } = await supabase.from('consultations').insert({
-                professional_id: doctor.id, 
-                user_id: user.id, 
+                professional_id: doctor.id,
+                user_id: user.id,
                 status: 'pending',
-                payment_status: 'unpaid',
+                payment_status: 'pending',
                 consultation_fee: doctor.consultation_fee,
                 reason: "Solicitud Directa"
             }).select().single();

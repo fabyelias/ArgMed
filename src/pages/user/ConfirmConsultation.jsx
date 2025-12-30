@@ -36,7 +36,7 @@ const ConfirmConsultation = () => {
                 `)
                 .eq('id', consultationId)
                 .eq('status', 'accepted')
-                .in('payment_status', ['pending', 'unpaid'])
+                .eq('payment_status', 'pending')
                 .single();
 
             if (error) {

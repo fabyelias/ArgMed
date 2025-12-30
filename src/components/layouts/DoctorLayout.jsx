@@ -92,7 +92,7 @@ const DoctorLayout = ({ children }) => {
                   doctor_id: user.id,
                   patient_id: patientId,
                   status: 'accepted',
-                  payment_status: 'unpaid',
+                  payment_status: 'pending',
                   consultation_fee: user.consultation_fee,
                   reason: incomingRequest.reason || 'Atención Inmediata',
                   created_at: new Date().toISOString()

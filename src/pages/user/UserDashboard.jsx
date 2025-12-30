@@ -50,7 +50,7 @@ const UserDashboard = () => {
                 `)
                 .eq('patient_id', user.id)
                 .eq('status', 'accepted')
-                .in('payment_status', ['pending', 'unpaid']);
+                .eq('payment_status', 'pending');
             
             if (error) throw error;
             setPendingConsultations(data);
