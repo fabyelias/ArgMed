@@ -58,34 +58,34 @@ const DoctorHome = () => {
 
         const { data: activeData, error: activeError } = await supabase
           .from('consultations')
-          .select('*, user:user_id(full_name, photo_url)')
-          .eq('professional_id', user.id)
-          .in('status', ['accepted', 'paid', 'in_call']) 
+          .select('*, users!patient_id(full_name, photo_url)')
+          .eq('doctor_id', user.id)
+          .in('status', ['accepted', 'paid', 'in_call'])
           .order('created_at', { ascending: false });
-          
+
         if (activeError) throw activeError;
         setActiveConsultations(activeData || []);
-        
+
         const { data: allCons } = await supabase
             .from('consultations')
-            .select('user_id')
-            .eq('professional_id', user.id);
-        
-        const uniqueUsers = new Set(allCons?.map(c => c.user_id)).size;
+            .select('patient_id')
+            .eq('doctor_id', user.id);
+
+        const uniqueUsers = new Set(allCons?.map(c => c.patient_id)).size;
 
         const { data: earningsData } = await supabase
             .from('consultations')
             .select('consultation_fee')
-            .eq('professional_id', user.id)
+            .eq('doctor_id', user.id)
             .eq('payment_status', 'paid')
-            .gte('created_at', todayISO); 
+            .gte('created_at', todayISO);
 
         const todayEarnings = earningsData?.reduce((sum, item) => sum + (Number(item.consultation_fee) || 0), 0) || 0;
 
         const { count: requestsCount } = await supabase
             .from('consultation_requests')
             .select('*', { count: 'exact', head: true })
-            .eq('current_professional_id', user.id)
+            .eq('current_doctor_id', user.id)
             .eq('status', 'searching');
 
         setStats({
@@ -175,17 +175,17 @@ const DoctorHome = () => {
                           <div className="relative flex-shrink-0">
                             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity"></div>
                             <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden border-2 border-cyan-500/30">
-                              {cons.user?.photo_url ? (
-                                <img src={cons.user.photo_url} className="w-full h-full object-cover" alt="Patient" />
+                              {cons.users?.photo_url ? (
+                                <img src={cons.users.photo_url} className="w-full h-full object-cover" alt="Patient" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-cyan-400/60">
-                                  <span className="text-lg font-bold">{cons.user?.full_name?.[0]}</span>
+                                  <span className="text-lg font-bold">{cons.users?.full_name?.[0]}</span>
                                 </div>
                               )}
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-bold text-white text-lg mb-1">{cons.user?.full_name || 'Usuario'}</h4>
+                            <h4 className="font-bold text-white text-lg mb-1">{cons.users?.full_name || 'Usuario'}</h4>
                             <div className="flex items-center gap-2 text-sm">
                               <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase ${
                                 cons.payment_status === 'paid' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
