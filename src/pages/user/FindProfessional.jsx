@@ -159,12 +159,7 @@ const FindProfessional = () => {
             user_id: nextDoc.id,
             type: 'smart_request',
             title: 'Solicitud Inmediata',
-            message: `Usuario espera atención${nextDoc.specialization ? ` (${nextDoc.specialization})` : ''}.`,
-            payload: { 
-                requestId: requestId, 
-                patientName: user.full_name,
-                patientId: user.id 
-            },
+            message: `${user.full_name} espera atención${nextDoc.specialization ? ` (${nextDoc.specialization})` : ''}.`,
             is_read: false
         });
 
@@ -261,11 +256,7 @@ const FindProfessional = () => {
                 type: 'consultation_request',
                 title: 'Solicitud Directa',
                 message: `${user.full_name} solicita sesión.`,
-                payload: { 
-                    consultationId: data.id,
-                    patientId: user.id,
-                    patientName: user.full_name
-                },
+                related_consultation_id: data.id,
                 is_read: false
             });
 

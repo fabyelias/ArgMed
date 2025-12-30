@@ -109,14 +109,15 @@ const DoctorLayout = ({ children }) => {
                   type: 'consultation_accepted',
                   title: '¡Profesional Encontrado!',
                   message: `${user.full_name} aceptó tu solicitud. Procede al pago para iniciar la videollamada.`,
-                  payload: { consultationId: newConsultation.id },
+                  related_consultation_id: newConsultation.id,
+                  action_url: `/user/confirm-consultation/${newConsultation.id}`,
                   is_read: false
               });
 
               toast({ title: "¡Solicitud Aceptada!", description: "Esperando pago del usuario...", className: "bg-green-600 text-white" });
               setIncomingRequest(null);
               navigate('/professional/dashboard');
-                 
+
           } else {
               const { error } = await supabase.from('consultations').update({ status: 'accepted', consultation_fee: user.consultation_fee }).eq('id', incomingRequest.consultationId);
               if (error) throw error;
@@ -127,7 +128,8 @@ const DoctorLayout = ({ children }) => {
                   type: 'consultation_accepted',
                   title: 'Solicitud Aceptada',
                   message: `${user.full_name} aceptó tu solicitud. Procede al pago para iniciar la videollamada.`,
-                  payload: { consultationId: incomingRequest.consultationId },
+                  related_consultation_id: incomingRequest.consultationId,
+                  action_url: `/user/confirm-consultation/${incomingRequest.consultationId}`,
                   is_read: false
               });
 
