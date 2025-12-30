@@ -157,7 +157,7 @@ const FindProfessional = () => {
 
         await supabase.from('notifications').insert({
             user_id: nextDoc.id,
-            type: 'smart_request',
+            type: 'info',
             title: 'Solicitud Inmediata',
             message: `${user.full_name} espera atención${nextDoc.specialization ? ` (${nextDoc.specialization})` : ''}.`,
             is_read: false
@@ -253,7 +253,7 @@ const FindProfessional = () => {
 
             await supabase.from('notifications').insert({
                 user_id: professional.id,
-                type: 'consultation_request',
+                type: 'info',
                 title: 'Solicitud Directa',
                 message: `${user.full_name} solicita sesión.`,
                 related_consultation_id: data.id,

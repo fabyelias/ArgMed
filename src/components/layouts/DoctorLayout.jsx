@@ -106,7 +106,7 @@ const DoctorLayout = ({ children }) => {
               // Notificar al paciente que debe pagar
               await supabase.from('notifications').insert({
                   user_id: patientId,
-                  type: 'consultation_accepted',
+                  type: 'success',
                   title: '¡Profesional Encontrado!',
                   message: `${user.full_name} aceptó tu solicitud. Procede al pago para iniciar la videollamada.`,
                   related_consultation_id: newConsultation.id,
@@ -125,7 +125,7 @@ const DoctorLayout = ({ children }) => {
               // Notificar al paciente que debe pagar
               await supabase.from('notifications').insert({
                   user_id: patientId,
-                  type: 'consultation_accepted',
+                  type: 'success',
                   title: 'Solicitud Aceptada',
                   message: `${user.full_name} aceptó tu solicitud. Procede al pago para iniciar la videollamada.`,
                   related_consultation_id: incomingRequest.consultationId,

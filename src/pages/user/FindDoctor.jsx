@@ -158,14 +158,9 @@ const FindDoctor = () => {
 
         await supabase.from('notifications').insert({
             user_id: nextDoc.id,
-            type: 'smart_request',
+            type: 'info',
             title: 'Solicitud Inmediata',
             message: `Usuario espera atención${nextDoc.specialization ? ` (${nextDoc.specialization})` : ''}.`,
-            payload: { 
-                requestId: requestId, 
-                patientName: user.full_name,
-                patientId: user.id 
-            },
             is_read: false
         });
 
@@ -259,14 +254,10 @@ const FindDoctor = () => {
 
             await supabase.from('notifications').insert({
                 user_id: doctor.id,
-                type: 'consultation_request',
+                type: 'info',
                 title: 'Solicitud Directa',
                 message: `${user.full_name} solicita sesión.`,
-                payload: { 
-                    consultationId: data.id,
-                    patientId: user.id,
-                    patientName: user.full_name
-                },
+                related_consultation_id: data.id,
                 is_read: false
             });
 
