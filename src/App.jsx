@@ -62,7 +62,7 @@ function App() {
                 <Route path="/api/auth/callback" element={<MPCallback />} />
                 
                 {/* Patient Routes */}
-                <Route path="/user/payment-status" element={<ProtectedRoute role="patient"><PaymentStatus /></ProtectedRoute>} />
+                <Route path="/user/payment-status" element={<PaymentStatus />} />
                 <Route path="/user/payment-success" element={<PaymentSuccess />} />
                 <Route path="/user/video-permissions/:id" element={<RedirectToVideoRoom role="patient" />} />
                 <Route path="/user/video-call-room/:id" element={<ProtectedRoute role="patient"><PatientVideoCallRoom /></ProtectedRoute>} />

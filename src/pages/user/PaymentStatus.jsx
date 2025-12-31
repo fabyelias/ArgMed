@@ -34,15 +34,25 @@ const PaymentStatus = () => {
 
           if (updateError) console.error('Error updating consultation:', updateError);
 
-          // 2. Fetch for notification details
+          // 2. Fetch consultation and patient details separately
           const { data: consultationData } = await supabase
             .from('consultations')
-            .select('*, patients:patient_id(full_name)')
+            .select('*')
             .eq('id', consultationId)
             .single();
 
-          if (consultationData?.doctor_id) {
-             const patientName = consultationData.patients?.full_name || 'Un Usuario';
+          if (consultationData?.doctor_id && consultationData?.patient_id) {
+             // Get patient name separately
+             const { data: patientData } = await supabase
+               .from('users')
+               .select('first_name, last_name')
+               .eq('id', consultationData.patient_id)
+               .single();
+
+             const patientName = patientData
+               ? `${patientData.first_name} ${patientData.last_name}`
+               : 'Un Usuario';
+
              await supabase.from('notifications').insert({
                user_id: consultationData.doctor_id,
                type: 'payment_received',
