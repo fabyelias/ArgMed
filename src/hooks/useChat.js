@@ -25,15 +25,14 @@ export const useChat = (consultationId, userId) => {
     }
   };
 
-  const sendMessage = async (text, senderName) => {
+  const sendMessage = async (text) => {
     if (!text.trim() || !userId || !consultationId) return false;
-    
+
     setSending(true);
     try {
       const payload = {
         consultation_id: consultationId,
         sender_id: userId,
-        sender_name: senderName,
         message: text.trim(),
         is_read: false
       };
@@ -46,10 +45,10 @@ export const useChat = (consultationId, userId) => {
       return true;
     } catch (err) {
       console.error("Error sending message:", err);
-      toast({ 
-        title: "Error", 
-        description: "No se pudo enviar el mensaje", 
-        variant: "destructive" 
+      toast({
+        title: "Error",
+        description: "No se pudo enviar el mensaje",
+        variant: "destructive"
       });
       return false;
     } finally {

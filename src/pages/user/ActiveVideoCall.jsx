@@ -124,7 +124,7 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
 
   return (
     <div className="h-screen w-screen bg-slate-950 flex overflow-hidden relative">
-      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} messages={messages} onSendMessage={(txt) => sendMessage(txt, user?.full_name || 'Usuario')} currentUserId={user?.id} sending={sending} />
+      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} messages={messages} onSendMessage={(txt) => sendMessage(txt)} currentUserId={user?.id} sending={sending} />
 
       <div className="flex-1 relative flex flex-col bg-black">
         <div className="flex-1 relative overflow-hidden bg-slate-900 flex items-center justify-center">
