@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Realtime</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test Supabase Realtime</h1>
+    <div id="logs"></div>
+
+    <script>
+        const supabaseUrl = 'https://msnppinpethxfxskfgsv.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zbnBwaW5wZXRoeGZ4c2tmZ3N2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MzAwMDksImV4cCI6MjA1MDEwNjAwOX0.cVOlrqQAhCCMpf2LYa7Z5hbGVYKgT_GIyNRXj2c8KxY';
+
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        const log = (msg) => {
+            const div = document.getElementById('logs');
+            div.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${msg}</p>`;
+            console.log(msg);
+        };
+
+        log('Iniciando test de Realtime...');
+
+        // Test 1: Verificar conexión básica
+        log('Test 1: Verificando conexión básica...');
+
+        // Test 2: Suscribirse a cambios en consultations
+        const testId = 'test-' + Date.now();
+        const channel = supabase
+            .channel(`consultation-${testId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'consultations',
+                filter: `id=eq.${testId}`
+            }, (payload) => {
+                log('✅ RECIBIDO UPDATE: ' + JSON.stringify(payload));
+            })
+            .subscribe((status) => {
+                log('Estado de suscripción: ' + status);
+
+                if (status === 'SUBSCRIBED') {
+                    log('✅ Suscrito correctamente');
+                    log('Canal está escuchando cambios en tabla consultations');
+                    log('Ahora prueba hacer un UPDATE manual en Supabase Dashboard');
+                } else if (status === 'CHANNEL_ERROR') {
+                    log('❌ ERROR: No se pudo suscribir al canal');
+                    log('Posible causa: Realtime no está habilitado para la tabla consultations');
+                } else if (status === 'TIMED_OUT') {
+                    log('❌ TIMEOUT: La conexión tardó demasiado');
+                }
+            });
+
+        log('Canal creado: consultation-' + testId);
+    </script>
+</body>
+</html>
