@@ -377,7 +377,7 @@ const FindDoctor = () => {
                             <div key={doc.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition-all group">
                                 <div className="flex justify-between mb-4">
                                     <div className="w-14 h-14 rounded-full bg-slate-800 overflow-hidden border border-slate-700">
-                                        {doc.profiles?.photo_url ? <img src={doc.profiles.photo_url} className="w-full h-full object-cover" alt="Doc" /> : <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">{doc.profiles?.full_name?.[0]}</div>}
+                                        <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-xl">{doc.profiles?.full_name?.[0] || 'D'}</div>
                                     </div>
                                     <div className="flex items-center gap-1 text-yellow-500 text-xs font-bold"><Star className="w-3 h-3 fill-current" /> {doc.rating || '5.0'}</div>
                                 </div>
