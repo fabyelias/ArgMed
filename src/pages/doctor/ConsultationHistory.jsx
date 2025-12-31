@@ -42,10 +42,9 @@ const ConsultationHistory = () => {
     return () => supabase.removeChannel(channel);
   }, [user]);
 
-  const formatDuration = (seconds) => {
-      if(!seconds) return "0 min";
-      const mins = Math.floor(seconds / 60);
-      return `${mins} min`;
+  const formatDuration = (minutes) => {
+      if(!minutes) return "0 min";
+      return `${minutes} min`;
   };
 
   return (
@@ -91,7 +90,7 @@ const ConsultationHistory = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4" />
-                          <span>{formatDuration(consultation.duration)}</span>
+                          <span>{formatDuration(consultation.duration_minutes)}</span>
                         </div>
                         <span className="text-cyan-400 font-medium">${consultation.consultation_fee}</span>
                       </div>

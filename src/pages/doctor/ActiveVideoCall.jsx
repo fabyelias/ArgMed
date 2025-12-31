@@ -204,7 +204,7 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
         const { data, error } = await supabase.from('consultations').update({
             status: 'completed',
             ended_at: new Date().toISOString(),
-            duration
+            duration_minutes: Math.floor(duration / 60)
         }).eq('id', consultationId).select();
 
         if (error) {
