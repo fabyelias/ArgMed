@@ -34,21 +34,43 @@ const PaymentSuccess = () => {
 
                 console.log('Updating payment status for consultation:', consultationIdFromUrl);
 
-                // Update consultation payment status using service client (no auth required)
-                const { error: updateError } = await supabase
+                // First verify consultation exists
+                const { data: existingConsultation, error: checkError } = await supabase
+                    .from('consultations')
+                    .select('id, payment_status, status')
+                    .eq('id', consultationIdFromUrl)
+                    .single();
+
+                console.log('Existing consultation:', existingConsultation, 'Check error:', checkError);
+
+                if (checkError) {
+                    console.error('Error checking consultation:', checkError);
+                    setError(`No se pudo verificar la consulta: ${checkError.message}`);
+                    setUpdating(false);
+                    return;
+                }
+
+                // Update consultation payment status
+                const { data: updateData, error: updateError } = await supabase
                     .from('consultations')
                     .update({
                         payment_status: 'paid',
                         status: 'paid',
                         mp_payment_id: paymentId || null
                     })
-                    .eq('id', consultationIdFromUrl);
+                    .eq('id', consultationIdFromUrl)
+                    .select();
+
+                console.log('Update result:', updateData, 'Update error:', updateError);
 
                 if (updateError) {
                     console.error('Error updating payment status:', updateError);
-                    setError('Error al actualizar el estado del pago');
+                    setError(`Error al actualizar: ${updateError.message}. Código: ${updateError.code}`);
+                } else if (!updateData || updateData.length === 0) {
+                    console.error('No rows updated');
+                    setError('No se pudo actualizar la consulta (0 filas afectadas)');
                 } else {
-                    console.log('Payment status updated successfully');
+                    console.log('Payment status updated successfully:', updateData);
                 }
 
                 setUpdating(false);
