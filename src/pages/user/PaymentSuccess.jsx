@@ -122,7 +122,7 @@ const PaymentSuccess = () => {
                             Tu consulta médica está confirmada y lista.
                         </p>
                         <Button
-                            onClick={() => navigate('/user')}
+                            onClick={() => navigate('/user/dashboard')}
                             size="lg"
                             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold text-lg px-8 py-6 shadow-lg shadow-green-900/50"
                         >
