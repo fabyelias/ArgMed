@@ -76,13 +76,16 @@ const PaymentSuccess = () => {
 
                 // Wait a bit longer to ensure DB update propagates
                 const redirectTimer = setTimeout(() => {
+                    console.log('Checking authentication and redirecting...');
                     // Check if user is authenticated
                     supabase.auth.getSession().then(({ data: { session } }) => {
+                        console.log('Session check:', session ? 'authenticated' : 'not authenticated');
                         if (session) {
-                            navigate(`/user/video-permissions/${consultationIdFromUrl}`);
+                            // Already authenticated, go to video room
+                            navigate(`/user/video-call-room/${consultationIdFromUrl}`);
                         } else {
-                            // If not authenticated, go to login with return URL
-                            navigate(`/auth?redirect=/user/video-permissions/${consultationIdFromUrl}`);
+                            // Not authenticated, go to login with return URL
+                            navigate(`/auth?redirect=/user/video-call-room/${consultationIdFromUrl}`);
                         }
                     });
                 }, 4000);
