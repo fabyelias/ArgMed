@@ -25,21 +25,31 @@ const UserHome = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('consultations')
-        .select(`
-          *,
-          professional:professional_id (
-            full_name,
-            photo_url,
-            professionals_data:professionals(
-              specialization
-            )
-          )
-        `)
-        .eq('user_id', user.id)
+        .select('*')
+        .eq('patient_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setConsultations(data || []);
+
+      // Get professional data for each consultation
+      const consultationsWithProfessionals = await Promise.all(
+        (data || []).map(async (consultation) => {
+          const { data: professionalData } = await supabase
+            .from('users')
+            .select('first_name, last_name')
+            .eq('id', consultation.doctor_id)
+            .single();
+
+          return {
+            ...consultation,
+            professional: professionalData ? {
+              full_name: `${professionalData.first_name} ${professionalData.last_name}`
+            } : null
+          };
+        })
+      );
+
+      setConsultations(consultationsWithProfessionals);
     } catch (error) {
       console.error('Error fetching consultations:', error);
     } finally {
@@ -54,7 +64,7 @@ const UserHome = () => {
         event: '*',
         schema: 'public',
         table: 'consultations',
-        filter: `user_id=eq.${user.id}`
+        filter: `patient_id=eq.${user.id}`
       }, () => {
         fetchConsultations();
       })
@@ -72,8 +82,9 @@ const UserHome = () => {
         action: 'payment'
       };
     }
-    
-    if (consultation.status === 'accepted' && consultation.payment_status === 'paid') {
+
+    // Paid consultations (status can be 'accepted' or 'in_progress')
+    if (consultation.payment_status === 'paid' && ['accepted', 'in_progress', 'in_call'].includes(consultation.status)) {
       return {
         icon: <CheckCircle2 className="w-5 h-5 text-green-500" />,
         text: 'Confirmada - Listo para consulta',

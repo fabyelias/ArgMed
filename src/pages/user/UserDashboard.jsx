@@ -40,13 +40,13 @@ const UserDashboard = () => {
     const fetchPendingConsultations = async () => {
         if (!user) return;
         try {
-            // Get pending consultations
+            // Get pending and active consultations (both unpaid and paid)
             const { data, error } = await supabase
                 .from('consultations')
                 .select('*')
                 .eq('patient_id', user.id)
-                .eq('status', 'accepted')
-                .eq('payment_status', 'pending');
+                .in('status', ['accepted', 'in_progress'])
+                .in('payment_status', ['pending', 'paid']);
 
             if (error) throw error;
 
