@@ -1,165 +1,123 @@
-﻿import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { Loader2, AlertTriangle, Home } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
-import { toast } from '@/components/ui/use-toast';
-import ChatPanel from '@/components/ChatPanel';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import ActiveVideoCall from './ActiveVideoCall';
 
-// This is a simplified placeholder for the video room to resolve the import error.
-// In a real implementation, this would contain WebRTC logic (Daily.co, Agora, Twilio, or simple PeerJS).
-const VideoCallRoom = () => {
-  const { id: consultationId } = useParams();
-  const { user } = useAuth();
+const ProfessionalVideoCallRoom = () => {
+  const { id } = useParams();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
-  
-  const [micOn, setMicOn] = useState(true);
-  const [cameraOn, setCameraOn] = useState(true);
-  const [showChat, setShowChat] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
+  const [error, setError] = useState(null);
   const [consultation, setConsultation] = useState(null);
 
   useEffect(() => {
-    const fetchConsultation = async () => {
-      const { data, error } = await supabase
-        .from('consultations')
-        .select('*')
-        .eq('id', consultationId)
-        .single();
+    const validateAccess = async () => {
+      if (loading) return;
 
-      if (error) {
-        console.error(error);
-        toast({ title: "Error", description: "No se pudo cargar la consulta", variant: "destructive" });
-        navigate('/professional');
+      if (!user) {
+        navigate('/auth');
         return;
       }
 
-      // Fetch patient info separately
-      const { data: patientData } = await supabase
-        .from('users')
-        .select('first_name, last_name')
-        .eq('id', data.patient_id)
-        .single();
+      // 1. Validate ID Format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!id || !uuidRegex.test(id)) {
+        setError(`ID de consulta inválido.`);
+        setIsValidating(false);
+        return;
+      }
 
-      // Attach patient info to consultation
-      data.patient = patientData ? {
-        full_name: `${patientData.first_name} ${patientData.last_name}`
-      } : { full_name: 'Paciente' };
+      try {
+        // 2. Fetch consultation
+        const { data, error } = await supabase
+          .from('consultations')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
 
-      setConsultation(data);
+        if (error) throw error;
+
+        if (!data) {
+          throw new Error(`No se encontró la consulta.`);
+        }
+
+        // 3. Fetch patient info separately
+        const { data: patientData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('id', data.patient_id)
+          .single();
+
+        // Attach patient info to consultation
+        data.patient = patientData ? {
+          full_name: `${patientData.first_name} ${patientData.last_name}`
+        } : { full_name: 'Paciente' };
+
+        // 3. Ownership Check
+        if (data.doctor_id !== user.id) {
+          throw new Error("No tienes permiso para acceder a esta sala.");
+        }
+
+        // 4. Status Check - Block Completed
+        if (['completed', 'finished', 'cancelled', 'rejected'].includes(data.status)) {
+            navigate('/professional'); // Auto-redirect for professional feel
+            return;
+        }
+
+        // 5. Payment Check
+        if (data.payment_status !== 'paid') {
+            console.log("Unpaid consultation access attempt by doctor.");
+            throw new Error("La consulta aún no ha sido pagada por el paciente.");
+        }
+
+        setConsultation(data);
+        setError(null);
+      } catch (err) {
+        console.error("Access validation failed:", err);
+        setError(err.message);
+      } finally {
+        setIsValidating(false);
+      }
     };
-    fetchConsultation();
-  }, [consultationId, navigate]);
 
-  const handleEndCall = async () => {
-    const confirmEnd = window.confirm("¿Finalizar la consulta?");
-    if (confirmEnd) {
-      await supabase
-        .from('consultations')
-        .update({ 
-          status: 'completed',
-          ended_at: new Date().toISOString()
-        })
-        .eq('id', consultationId);
-        
-      toast({ title: "Consulta Finalizada" });
-      navigate('/professional');
-    }
-  };
+    validateAccess();
+  }, [id, user, loading, navigate]);
 
-  return (
-    <div className="h-screen bg-slate-950 flex flex-col relative overflow-hidden">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-black/70 to-transparent flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="bg-cyan-600 p-2 rounded-full">
-            <User className="text-white w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-white font-bold text-lg">{consultation?.patient?.full_name || 'Usuario'}</h2>
-            <p className="text-cyan-400 text-xs flex items-center gap-1">
-              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> En vivo
-            </p>
-          </div>
-        </div>
-        <div className="bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-          <span className="text-white font-mono text-sm">00:12:45</span>
-        </div>
+  if (loading || isValidating) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950 text-white">
+        <Loader2 className="w-12 h-12 animate-spin text-cyan-500 mb-4" />
+        <p className="text-lg font-medium">Conectando de forma segura...</p>
       </div>
+    );
+  }
 
-      {/* Main Video Area (Placeholder) */}
-      <div className="flex-1 flex items-center justify-center bg-slate-900 relative">
-        <div className="text-center">
-          <div className="w-32 h-32 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <User className="w-16 h-16 text-slate-600" />
-          </div>
-          <h3 className="text-xl text-white font-medium">Conectando con el Usuario...</h3>
-          <p className="text-gray-500 mt-2">La señal de video aparecería aquí.</p>
+  if (error) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950 text-white p-4 text-center">
+        <div className="bg-red-500/20 p-6 rounded-full mb-6">
+             <AlertTriangle className="w-12 h-12 text-red-500" />
         </div>
-
-        {/* Self View (PIP) */}
-        <div className="absolute bottom-24 right-4 w-32 h-48 bg-slate-800 rounded-lg border-2 border-slate-700 overflow-hidden shadow-xl">
-           <div className="w-full h-full flex items-center justify-center bg-black">
-              <span className="text-xs text-gray-500">Tu cámara</span>
-           </div>
-        </div>
-      </div>
-
-      {/* Controls Bar */}
-      <div className="bg-slate-900 border-t border-slate-800 p-4 flex justify-center items-center gap-4 relative z-20">
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className={`rounded-full w-12 h-12 border-0 ${micOn ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}
-          onClick={() => setMicOn(!micOn)}
-        >
-          {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-        </Button>
-
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className={`rounded-full w-12 h-12 border-0 ${cameraOn ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}
-          onClick={() => setCameraOn(!cameraOn)}
-        >
-          {cameraOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
-        </Button>
-
-        <Button 
-          variant="destructive" 
-          size="icon" 
-          className="rounded-full w-14 h-14 bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/20 mx-4"
-          onClick={handleEndCall}
-        >
-          <PhoneOff className="w-6 h-6" />
-        </Button>
-
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className={`rounded-full w-12 h-12 border-0 ${showChat ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
-          onClick={() => setShowChat(!showChat)}
-        >
-          <MessageSquare className="w-5 h-5" />
+        <h1 className="text-2xl font-bold mb-2">Acceso Denegado</h1>
+        <p className="text-gray-400 mb-6 max-w-md">{error}</p>
+        <Button onClick={() => navigate('/professional')} variant="outline" className="border-slate-700 text-white hover:bg-slate-800">
+          <Home className="w-4 h-4 mr-2" /> Volver al Inicio
         </Button>
       </div>
+    );
+  }
 
-      {/* Chat Panel Overlay */}
-      {showChat && (
-        <div className="absolute right-0 top-0 bottom-20 w-80 bg-slate-900 border-l border-slate-800 z-20 shadow-2xl">
-           <div className="h-full flex flex-col">
-              <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-                 <h3 className="font-bold text-white">Chat de Consulta</h3>
-                 <Button variant="ghost" size="sm" onClick={() => setShowChat(false)} className="h-8 w-8 p-0 text-gray-400">✕</Button>
-              </div>
-              <div className="flex-1 p-4">
-                 <ChatPanel consultationId={consultationId} />
-              </div>
-           </div>
-        </div>
-      )}
-    </div>
-  );
+  console.log("[ProfessionalVideoCallRoom] Rendering ActiveVideoCall with:", {
+    consultationId: id,
+    patientName: consultation?.patient?.full_name,
+    consultationData: consultation
+  });
+
+  return <ActiveVideoCall consultationId={id} patientName={consultation?.patient?.full_name} />;
 };
 
-export default VideoCallRoom;
+export default ProfessionalVideoCallRoom;

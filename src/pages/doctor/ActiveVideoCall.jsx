@@ -74,8 +74,15 @@ const SimpleClinicalSidebar = ({ consultationId, patientId, doctorId }) => {
 };
 
 const ActiveVideoCall = ({ consultationId, patientName }) => {
+  console.log("[Doctor ActiveVideoCall] Component rendered");
+  console.log("[Doctor ActiveVideoCall] consultationId:", consultationId);
+  console.log("[Doctor ActiveVideoCall] patientName:", patientName);
+
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  console.log("[Doctor ActiveVideoCall] user:", user?.id);
+
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -83,7 +90,10 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
   const [patientId, setPatientId] = useState(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
+  console.log("[Doctor ActiveVideoCall] Calling useWebRTC with:", { consultationId, userId: user?.id, isDoctor: true });
   const { localStream, remoteStream, connectionStatus, isMuted, isVideoOff, toggleMute, toggleVideo } = useWebRTC(consultationId, user?.id, true);
+  console.log("[Doctor ActiveVideoCall] useWebRTC returned:", { localStream: !!localStream, remoteStream: !!remoteStream, connectionStatus });
+
   const { messages, sendMessage, sending } = useChat(consultationId, user?.id);
 
   // SYNC TIMER & END CALL LISTENER
