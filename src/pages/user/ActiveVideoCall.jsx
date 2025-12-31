@@ -120,18 +120,22 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
   const handleEndCall = async () => {
       if(!window.confirm("¿Finalizar consulta?")) return;
       try {
-        console.log("[Patient] Ending call, updating consultation to completed");
-        const { error } = await supabase.from('consultations').update({
+        console.log("[Patient] ========== ENDING CALL ==========");
+        console.log("[Patient] Consultation ID:", consultationId);
+        console.log("[Patient] Duration:", duration);
+
+        const { data, error } = await supabase.from('consultations').update({
             status: 'completed',
             ended_at: new Date().toISOString(),
             duration
-        }).eq('id', consultationId);
+        }).eq('id', consultationId).select();
 
         if (error) {
             console.error("[Patient] Error ending call:", error);
             throw error;
         }
 
+        console.log("[Patient] Database updated successfully:", data);
         console.log("[Patient] Call ended successfully, navigating to dashboard");
         navigate('/user');
       } catch (e) {

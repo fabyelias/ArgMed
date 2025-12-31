@@ -341,26 +341,8 @@ export const useWebRTC = (consultationId, userId, isDoctor) => {
         }
       });
 
-    // REAL-TIME DATABASE LISTENER FOR CONSULTATION STATUS
-    // This ensures we catch updates even if WebRTC fails
-    const statusChannel = supabase.channel(`consultation-${consultationId}-status-sync`)
-        .on('postgres_changes', 
-            { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` },
-            (payload) => {
-                if (payload.new.status === 'completed') {
-                    setConnectionStatus('ended');
-                    if (localStreamRef.current) {
-                        localStreamRef.current.getTracks().forEach(track => track.stop());
-                    }
-                }
-            }
-        )
-        .subscribe();
-
     return () => {
       console.log("[WebRTC] ========== Cleaning up WebRTC ==========");
-      console.log("[WebRTC] Removing status channel");
-      supabase.removeChannel(statusChannel);
 
       if (localStreamRef.current) {
         console.log("[WebRTC] Stopping local stream tracks");
