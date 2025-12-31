@@ -46,7 +46,7 @@ Deno.serve(async (req: Request) => {
     const { data: mpAccount, error: mpError } = await supabaseClient
       .from('mp_professional_accounts')
       .select('access_token, public_key')
-      .eq('doctor_id', consultation.doctor_id)
+      .eq('professional_id', consultation.doctor_id)
       .eq('is_active', true)
       .single();
 
