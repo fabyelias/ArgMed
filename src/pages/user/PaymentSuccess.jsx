@@ -10,6 +10,7 @@ const PaymentSuccess = () => {
     const navigate = useNavigate();
     const [updating, setUpdating] = useState(true);
     const [error, setError] = useState(null);
+    const [needsLogin, setNeedsLogin] = useState(false);
 
     useEffect(() => {
         const updatePaymentStatus = async () => {
@@ -74,24 +75,27 @@ const PaymentSuccess = () => {
 
                 setUpdating(false);
 
-                // Wait a bit longer to ensure DB update propagates
+                // Wait a bit to ensure DB update propagates, then redirect
                 const redirectTimer = setTimeout(() => {
                     console.log('Checking authentication and redirecting...');
                     // Check if user is authenticated
                     supabase.auth.getSession().then(({ data: { session } }) => {
                         console.log('Session check:', session ? 'authenticated' : 'not authenticated');
                         if (session) {
-                            // Already authenticated, go to video room
+                            // Already authenticated, go to video room immediately
+                            console.log('User authenticated, redirecting to video room');
                             navigate(`/user/video-call-room/${consultationIdFromUrl}`);
                         } else {
                             // Not authenticated, show message and redirect to login
-                            setError('¡Pago exitoso! Por favor inicia sesión para entrar a la videollamada.');
+                            console.log('User not authenticated, redirecting to login');
+                            setNeedsLogin(true);
+                            setUpdating(false);
                             setTimeout(() => {
                                 navigate(`/auth?redirect=/user/video-call-room/${consultationIdFromUrl}`);
                             }, 3000);
                         }
                     });
-                }, 4000);
+                }, 2000);
 
                 return () => clearTimeout(redirectTimer);
             } catch (error) {
@@ -119,6 +123,18 @@ const PaymentSuccess = () => {
                         </div>
                         <h1 className="text-4xl font-bold mb-3">Error</h1>
                         <p className="text-xl text-gray-400 mb-8">{error}</p>
+                    </>
+                ) : needsLogin ? (
+                    <>
+                        <div className="bg-cyan-500/20 p-6 rounded-full mb-8 inline-block">
+                            <CheckCircle className="w-24 h-24 text-cyan-400" />
+                        </div>
+                        <h1 className="text-4xl font-bold mb-3">¡Pago Exitoso!</h1>
+                        <p className="text-xl text-gray-400 mb-8">Por favor inicia sesión para ingresar a la videollamada</p>
+                        <div className="flex items-center justify-center gap-3 text-cyan-400">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <span className="text-lg">Redirigiendo a login...</span>
+                        </div>
                     </>
                 ) : (
                     <>
