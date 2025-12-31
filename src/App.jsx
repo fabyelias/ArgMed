@@ -63,7 +63,7 @@ function App() {
                 
                 {/* Patient Routes */}
                 <Route path="/user/payment-status" element={<ProtectedRoute role="patient"><PaymentStatus /></ProtectedRoute>} />
-                <Route path="/user/payment-success" element={<ProtectedRoute role="patient"><PaymentSuccess /></ProtectedRoute>} />
+                <Route path="/user/payment-success" element={<PaymentSuccess />} />
                 <Route path="/user/video-permissions/:id" element={<RedirectToVideoRoom role="patient" />} />
                 <Route path="/user/video-call-room/:id" element={<ProtectedRoute role="patient"><PatientVideoCallRoom /></ProtectedRoute>} />
                 <Route path="/user/video-call-active/:id" element={<RedirectToVideoRoom role="patient" />} />

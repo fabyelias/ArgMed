@@ -9,6 +9,7 @@ const PaymentSuccess = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [updating, setUpdating] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const updatePaymentStatus = async () => {
@@ -16,39 +17,59 @@ const PaymentSuccess = () => {
                 // Get consultation_id from URL params (MP sends it as query param)
                 const consultationIdFromUrl = searchParams.get('consultation_id') || consultationId;
 
+                // Also get payment_id and status from MP redirect
+                const paymentId = searchParams.get('payment_id');
+                const paymentStatus = searchParams.get('status');
+                const mpStatus = searchParams.get('payment_status');
+
+                console.log('Payment redirect params:', { consultationIdFromUrl, paymentId, paymentStatus, mpStatus });
+
                 if (!consultationIdFromUrl) {
-                    console.error('No consultation ID found');
-                    navigate('/user/dashboard');
+                    console.error('No consultation ID found in URL');
+                    setError('No se encontró el ID de la consulta');
+                    setUpdating(false);
+                    setTimeout(() => navigate('/'), 3000);
                     return;
                 }
 
                 console.log('Updating payment status for consultation:', consultationIdFromUrl);
 
-                // Update consultation payment status
+                // Update consultation payment status using service client (no auth required)
                 const { error: updateError } = await supabase
                     .from('consultations')
                     .update({
                         payment_status: 'paid',
-                        status: 'paid'
+                        status: 'paid',
+                        mp_payment_id: paymentId || null
                     })
                     .eq('id', consultationIdFromUrl);
 
                 if (updateError) {
                     console.error('Error updating payment status:', updateError);
+                    setError('Error al actualizar el estado del pago');
                 } else {
                     console.log('Payment status updated successfully');
                 }
 
                 setUpdating(false);
 
-                // Redirect to video permissions after 3 seconds
+                // Wait a bit longer to ensure DB update propagates
                 const redirectTimer = setTimeout(() => {
-                    navigate(`/user/video-permissions/${consultationIdFromUrl}`);
-                }, 3000);
+                    // Check if user is authenticated
+                    supabase.auth.getSession().then(({ data: { session } }) => {
+                        if (session) {
+                            navigate(`/user/video-permissions/${consultationIdFromUrl}`);
+                        } else {
+                            // If not authenticated, go to login with return URL
+                            navigate(`/auth?redirect=/user/video-permissions/${consultationIdFromUrl}`);
+                        }
+                    });
+                }, 4000);
 
                 return () => clearTimeout(redirectTimer);
             } catch (error) {
                 console.error('Payment update error:', error);
+                setError('Error procesando el pago');
                 setUpdating(false);
             }
         };
@@ -64,15 +85,27 @@ const PaymentSuccess = () => {
                 transition={{ type: 'spring', duration: 0.5 }}
                 className="text-center"
             >
-                <div className="bg-green-500/20 p-6 rounded-full mb-8 inline-block">
-                    <CheckCircle className="w-24 h-24 text-green-400" />
-                </div>
-                <h1 className="text-4xl font-bold mb-3">¡Pago Completado!</h1>
-                <p className="text-xl text-gray-400 mb-8">Gracias por tu pago. Preparando la sala de video...</p>
-                <div className="flex items-center justify-center gap-3 text-cyan-400">
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                    <span className="text-lg">Redirigiendo...</span>
-                </div>
+                {error ? (
+                    <>
+                        <div className="bg-red-500/20 p-6 rounded-full mb-8 inline-block">
+                            <CheckCircle className="w-24 h-24 text-red-400" />
+                        </div>
+                        <h1 className="text-4xl font-bold mb-3">Error</h1>
+                        <p className="text-xl text-gray-400 mb-8">{error}</p>
+                    </>
+                ) : (
+                    <>
+                        <div className="bg-green-500/20 p-6 rounded-full mb-8 inline-block">
+                            <CheckCircle className="w-24 h-24 text-green-400" />
+                        </div>
+                        <h1 className="text-4xl font-bold mb-3">¡Pago Completado!</h1>
+                        <p className="text-xl text-gray-400 mb-8">Gracias por tu pago. Preparando la sala de video...</p>
+                        <div className="flex items-center justify-center gap-3 text-cyan-400">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <span className="text-lg">{updating ? 'Procesando pago...' : 'Redirigiendo...'}</span>
+                        </div>
+                    </>
+                )}
             </motion.div>
         </div>
     );
