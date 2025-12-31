@@ -4,7 +4,7 @@ import { Loader2, AlertTriangle, Home } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import ActiveVideoCall from './ActiveVideoCall';
+import ActiveVideoCall from '@/pages/doctor/ActiveVideoCall';
 
 const ProfessionalVideoCallRoom = () => {
   const { id } = useParams();
