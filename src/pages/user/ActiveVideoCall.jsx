@@ -30,7 +30,7 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
     let interval;
 
     // 1. Listen for status updates immediately
-    const channel = supabase.channel(`consultation-room-${consultationId}`)
+    const channel = supabase.channel(`consultation-${consultationId}`)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` },
         (payload) => {
             console.log("[Patient] Consultation status update received:", payload.new.status);
@@ -51,7 +51,9 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
                 navigate('/user');
             }
         })
-        .subscribe();
+        .subscribe((status) => {
+            console.log("[Patient] Realtime subscription status:", status);
+        });
 
     // 2. Initial Timer Sync
     const syncTimer = async () => {

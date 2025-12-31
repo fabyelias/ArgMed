@@ -65,7 +65,7 @@ const SimpleClinicalSidebar = ({ consultationId, patientId, doctorId }) => {
     };
 
     return (
-        <div className="w-[350px] bg-slate-950 border-r border-slate-800 flex flex-col h-full shrink-0 hidden md:flex">
+        <div className="w-[350px] bg-slate-950 border-r border-slate-800 flex-col h-full shrink-0 hidden md:flex">
             <div className="flex border-b border-slate-800 bg-slate-900 p-2 gap-2">
                 <button onClick={() => setTab('notes')} className={cn("flex-1 py-2 text-sm font-bold rounded transition-colors", tab === 'notes' ? "bg-cyan-600 text-white" : "bg-slate-800 text-gray-400 hover:bg-slate-700")}>Notas</button>
                 <button onClick={() => setTab('history')} className={cn("flex-1 py-2 text-sm font-bold rounded transition-colors", tab === 'history' ? "bg-cyan-600 text-white" : "bg-slate-800 text-gray-400 hover:bg-slate-700")}>Historial</button>
@@ -117,7 +117,7 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
       let interval;
       
       // 1. Subscribe to Consultation Updates
-      const channel = supabase.channel(`consultation-${consultationId}-status`)
+      const channel = supabase.channel(`consultation-${consultationId}`)
           .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` },
           (payload) => {
               console.log("[Doctor] Consultation status update received:", payload.new.status);
@@ -126,7 +126,9 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
                   navigate('/professional');
               }
           })
-          .subscribe();
+          .subscribe((status) => {
+              console.log("[Doctor] Realtime subscription status:", status);
+          });
 
       // 2. Timer Logic
       const initTimer = async () => {
