@@ -56,15 +56,33 @@ const DoctorHome = () => {
         today.setHours(0,0,0,0);
         const todayISO = today.toISOString();
 
+        // Get active consultations
         const { data: activeData, error: activeError } = await supabase
           .from('consultations')
-          .select('*, users!patient_id(full_name, photo_url)')
+          .select('*')
           .eq('doctor_id', user.id)
           .in('status', ['accepted', 'paid', 'in_call'])
           .order('created_at', { ascending: false });
 
         if (activeError) throw activeError;
-        setActiveConsultations(activeData || []);
+
+        // Get patient data for each consultation
+        const consultationsWithPatients = await Promise.all(
+          (activeData || []).map(async (consultation) => {
+            const { data: patientData } = await supabase
+              .from('users')
+              .select('full_name, photo_url')
+              .eq('id', consultation.patient_id)
+              .single();
+
+            return {
+              ...consultation,
+              users: patientData
+            };
+          })
+        );
+
+        setActiveConsultations(consultationsWithPatients);
 
         const { data: allCons } = await supabase
             .from('consultations')
