@@ -28,7 +28,7 @@ const DoctorSettings = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      
+
       const { data: account } = await supabase
         .from('mp_professional_accounts')
         .select('*')
@@ -37,12 +37,12 @@ const DoctorSettings = () => {
       setMpAccount(account);
 
       const { data: priceData } = await supabase
-        .from('professional_consultation_prices')
-        .select('*')
-        .eq('professional_id', user.id)
+        .from('professionals')
+        .select('consultation_fee')
+        .eq('id', user.id)
         .single();
-      
-      if (priceData) setPrice(priceData.precio_actual);
+
+      if (priceData) setPrice(priceData.consultation_fee || 5000);
 
     } catch (error) {
       console.error(error);
@@ -84,21 +84,15 @@ const DoctorSettings = () => {
 
       setProcessing(true);
       try {
-          const upsertData = {
-              professional_id: user.id,
-              precio_actual: numPrice,
-              precio_minimo: 5000,
-              precio_maximo: 25000,
-              updated_at: new Date().toISOString()
-          };
-          
           const { error } = await supabase
-              .from('professional_consultation_prices')
-              .upsert(upsertData, { onConflict: 'professional_id' });
+              .from('professionals')
+              .update({
+                  consultation_fee: numPrice,
+                  updated_at: new Date().toISOString()
+              })
+              .eq('id', user.id);
 
           if (error) throw error;
-          
-          await supabase.from('professionals').update({ consultation_fee: numPrice }).eq('id', user.id);
 
           toast({ title: "Precio Actualizado", className: "bg-green-600 text-white" });
           fetchSettings();
