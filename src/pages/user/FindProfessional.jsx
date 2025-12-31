@@ -50,8 +50,13 @@ const FindProfessional = () => {
             if (professionalsError) throw professionalsError;
 
             const enrichedProfessionals = await Promise.all((professionalsData || []).map(async (doc) => {
-                const { data: profile } = await supabase.from('profiles').select('full_name, photo_url').eq('id', doc.id).single();
-                return { ...doc, profiles: profile };
+                const { data: userData } = await supabase.from('users').select('first_name, last_name').eq('id', doc.id).single();
+                return {
+                    ...doc,
+                    profiles: userData ? {
+                        full_name: `${userData.first_name} ${userData.last_name}`
+                    } : null
+                };
             }));
             
             setProfessionals(enrichedProfessionals);
