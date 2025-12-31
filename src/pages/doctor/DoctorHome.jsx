@@ -71,7 +71,7 @@ const DoctorHome = () => {
           .from('consultations')
           .select('*')
           .eq('doctor_id', user.id)
-          .in('status', ['accepted', 'paid', 'in_call'])
+          .in('status', ['accepted', 'in_progress', 'in_call'])
           .order('created_at', { ascending: false });
 
         if (activeError) throw activeError;
