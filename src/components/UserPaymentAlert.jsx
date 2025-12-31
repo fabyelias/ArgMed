@@ -30,13 +30,15 @@ const UserPaymentAlert = () => {
           // Get professional data separately
           const { data: professionalData } = await supabase
             .from('users')
-            .select('full_name')
+            .select('first_name, last_name')
             .eq('id', data.doctor_id)
             .single();
 
           setPendingConsultation({
             ...data,
-            professionals: professionalData
+            professionals: {
+              full_name: professionalData ? `${professionalData.first_name} ${professionalData.last_name}` : 'Especialista'
+            }
           });
           setIsVisible(true);
         } else {

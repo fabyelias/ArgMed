@@ -55,13 +55,15 @@ const UserDashboard = () => {
                 (data || []).map(async (consultation) => {
                     const { data: professionalData } = await supabase
                         .from('users')
-                        .select('full_name')
+                        .select('first_name, last_name')
                         .eq('id', consultation.doctor_id)
                         .single();
 
                     return {
                         ...consultation,
-                        professional: professionalData
+                        professional: professionalData ? {
+                            full_name: `${professionalData.first_name} ${professionalData.last_name}`
+                        } : null
                     };
                 })
             );

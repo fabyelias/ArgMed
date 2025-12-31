@@ -71,13 +71,15 @@ const DoctorHome = () => {
           (activeData || []).map(async (consultation) => {
             const { data: patientData } = await supabase
               .from('users')
-              .select('full_name, photo_url')
+              .select('first_name, last_name')
               .eq('id', consultation.patient_id)
               .single();
 
             return {
               ...consultation,
-              users: patientData
+              users: patientData ? {
+                full_name: `${patientData.first_name} ${patientData.last_name}`
+              } : null
             };
           })
         );
