@@ -17,17 +17,27 @@ const UserPaymentAlert = () => {
 
     const checkPendingPayments = async () => {
       try {
-        // Corrected query with new schema relations
+        // Separate queries to avoid Supabase join issues
         const { data, error } = await supabase
           .from('consultations')
-          .select('id,consultation_fee,professionals:professional_id(full_name)')
+          .select('id,consultation_fee,doctor_id')
           .eq('patient_id', user.id)
           .eq('status', 'accepted')
           .eq('payment_status', 'pending')
           .maybeSingle();
 
         if (data) {
-          setPendingConsultation(data);
+          // Get professional data separately
+          const { data: professionalData } = await supabase
+            .from('users')
+            .select('full_name')
+            .eq('id', data.doctor_id)
+            .single();
+
+          setPendingConsultation({
+            ...data,
+            professionals: professionalData
+          });
           setIsVisible(true);
         } else {
           setPendingConsultation(null);
