@@ -1,7 +1,8 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/customSupabaseClient';
 
 const PaymentSuccess = () => {
@@ -73,15 +74,6 @@ const PaymentSuccess = () => {
                 }
 
                 setUpdating(false);
-
-                // Wait a bit to ensure DB update propagates, then redirect to dashboard
-                const redirectTimer = setTimeout(() => {
-                    console.log('Redirecting to user dashboard...');
-                    // Always redirect to dashboard where user can see their paid consultation
-                    navigate('/user');
-                }, 2000);
-
-                return () => clearTimeout(redirectTimer);
             } catch (error) {
                 console.error('Payment update error:', error);
                 setError('Error procesando el pago');
@@ -108,17 +100,37 @@ const PaymentSuccess = () => {
                         <h1 className="text-4xl font-bold mb-3">Error</h1>
                         <p className="text-xl text-gray-400 mb-8">{error}</p>
                     </>
-                ) : (
+                ) : updating ? (
                     <>
                         <div className="bg-green-500/20 p-6 rounded-full mb-8 inline-block">
                             <CheckCircle className="w-24 h-24 text-green-400" />
                         </div>
                         <h1 className="text-4xl font-bold mb-3">¡Pago Completado!</h1>
-                        <p className="text-xl text-gray-400 mb-8">Tu consulta está lista. Redirigiendo...</p>
+                        <p className="text-xl text-gray-400 mb-8">Procesando tu consulta...</p>
                         <div className="flex items-center justify-center gap-3 text-cyan-400">
                             <Loader2 className="w-6 h-6 animate-spin" />
-                            <span className="text-lg">{updating ? 'Procesando pago...' : 'Redirigiendo a tu panel...'}</span>
+                            <span className="text-lg">Procesando pago...</span>
                         </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="bg-green-500/20 p-6 rounded-full mb-8 inline-block animate-bounce">
+                            <CheckCircle className="w-24 h-24 text-green-400" />
+                        </div>
+                        <h1 className="text-4xl font-bold mb-3">¡Pago Exitoso!</h1>
+                        <p className="text-xl text-gray-400 mb-8">
+                            Tu consulta médica está confirmada y lista.
+                        </p>
+                        <Button
+                            onClick={() => navigate('/user')}
+                            size="lg"
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold text-lg px-8 py-6 shadow-lg shadow-green-900/50"
+                        >
+                            Ir a Mi Panel <ArrowRight className="ml-2 w-5 h-5" />
+                        </Button>
+                        <p className="text-sm text-gray-500 mt-4">
+                            Podrás ingresar a la videollamada desde tu panel
+                        </p>
                     </>
                 )}
             </motion.div>
