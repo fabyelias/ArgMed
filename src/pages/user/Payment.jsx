@@ -49,13 +49,19 @@ const Payment = () => {
                 }
             });
 
-            if (error) throw error;
+            console.log('MP Response:', { data, error });
+
+            if (error) {
+                console.error('MP Function Error:', error);
+                throw error;
+            }
             if (data && data.preferenceId) {
                 setPreferenceId(data.preferenceId);
                 if (data.publicKey) {
                     initMercadoPago(data.publicKey, { locale: 'es-AR' });
                 }
             } else {
+                console.error('No preference ID in response:', data);
                 throw new Error("No se recibió ID de preferencia.");
             }
 
