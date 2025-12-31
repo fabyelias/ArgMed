@@ -35,15 +35,27 @@ const PatientVideoCallRoom = () => {
         // 2. Fetch consultation
         const { data, error } = await supabase
           .from('consultations')
-          .select('*, doctors:doctor_id(full_name)')
+          .select('*')
           .eq('id', id)
           .maybeSingle();
 
         if (error) throw error;
-        
+
         if (!data) {
           throw new Error(`No se encontró la consulta.`);
         }
+
+        // 3. Fetch doctor info separately
+        const { data: doctorData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('id', data.doctor_id)
+          .single();
+
+        // Attach doctor info to consultation
+        data.doctors = doctorData ? {
+          full_name: `${doctorData.first_name} ${doctorData.last_name}`
+        } : { full_name: 'Doctor' };
 
         // 3. Ownership Check
         if (data.patient_id !== user.id) {

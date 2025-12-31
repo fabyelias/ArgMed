@@ -21,20 +21,32 @@ const VideoCallRoom = () => {
 
   useEffect(() => {
     const fetchConsultation = async () => {
-      // Fixed: changed patient_id (non-existent) to user_id (correct FK for patient)
       const { data, error } = await supabase
         .from('consultations')
-        .select('*, patient:user_id(full_name)')
+        .select('*')
         .eq('id', consultationId)
         .single();
-      
+
       if (error) {
         console.error(error);
         toast({ title: "Error", description: "No se pudo cargar la consulta", variant: "destructive" });
         navigate('/professional');
-      } else {
-        setConsultation(data);
+        return;
       }
+
+      // Fetch patient info separately
+      const { data: patientData } = await supabase
+        .from('users')
+        .select('first_name, last_name')
+        .eq('id', data.patient_id)
+        .single();
+
+      // Attach patient info to consultation
+      data.patient = patientData ? {
+        full_name: `${patientData.first_name} ${patientData.last_name}`
+      } : { full_name: 'Paciente' };
+
+      setConsultation(data);
     };
     fetchConsultation();
   }, [consultationId, navigate]);
