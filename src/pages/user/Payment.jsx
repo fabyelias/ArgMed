@@ -46,28 +46,39 @@ const Payment = () => {
                 return;
             }
 
-            const { data, error } = await supabase.functions.invoke('create-mp-preference', {
-                body: {
-                    consultationId,
-                    title: `Consulta Médica - Dr. ${professionalName || 'Especialista'}`,
-                    price: parseFloat(amount || checkData.consultation_fee || 0),
-                    quantity: 1
+            // Call Edge Function directly without JWT requirement
+            const response = await fetch(
+                `https://msnppinpethxfxskfgsv.supabase.co/functions/v1/create-mp-preference`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        consultationId,
+                        title: `Consulta Médica - Dr. ${professionalName || 'Especialista'}`,
+                        price: parseFloat(amount || checkData.consultation_fee || 0),
+                        quantity: 1
+                    })
                 }
-            });
+            );
 
-            console.log('MP Response:', { data, error });
+            const result = await response.json();
+            console.log('MP Response:', result);
 
-            if (error) {
-                console.error('MP Function Error:', error);
-                throw error;
+            if (!response.ok) {
+                console.error('MP Function Error:', result);
+                throw new Error(result.error || 'Error al crear preferencia de pago');
             }
-            if (data && data.preferenceId) {
-                setPreferenceId(data.preferenceId);
-                if (data.publicKey) {
-                    initMercadoPago(data.publicKey, { locale: 'es-AR' });
+
+            if (result.preferenceId) {
+                setPreferenceId(result.preferenceId);
+                if (result.publicKey) {
+                    initMercadoPago(result.publicKey, { locale: 'es-AR' });
                 }
             } else {
-                console.error('No preference ID in response:', data);
+                console.error('No preference ID in response:', result);
                 throw new Error("No se recibió ID de preferencia.");
             }
 
