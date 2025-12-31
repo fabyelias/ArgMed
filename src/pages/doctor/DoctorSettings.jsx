@@ -73,10 +73,10 @@ const DoctorSettings = () => {
 
   const handleSavePrice = async () => {
       const numPrice = Number(price);
-      if (numPrice < 5000 || numPrice > 20000) {
+      if (numPrice < 5000 || numPrice > 25000) {
           toast({
               title: "Precio Inválido",
-              description: "El precio de la consulta debe estar entre $5,000 y $20,000 ARS.",
+              description: "El precio de la consulta debe estar entre $5,000 y $25,000 ARS.",
               variant: "destructive"
           });
           return;
@@ -88,7 +88,7 @@ const DoctorSettings = () => {
               professional_id: user.id,
               precio_actual: numPrice,
               precio_minimo: 5000,
-              precio_maximo: 20000,
+              precio_maximo: 25000,
               updated_at: new Date().toISOString()
           };
           
@@ -153,7 +153,7 @@ const DoctorSettings = () => {
                   <CardTitle className="text-white flex items-center gap-2">
                       <DollarSign className="text-green-400" /> Tarifa de Consulta
                   </CardTitle>
-                  <CardDescription>Define tus honorarios (rango obligatorio: $5.000 - $20.000).</CardDescription>
+                  <CardDescription>Define tus honorarios (rango obligatorio: $5.000 - $25.000).</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                   <div className="space-y-2">
