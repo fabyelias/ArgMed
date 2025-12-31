@@ -84,8 +84,11 @@ const PaymentSuccess = () => {
                             // Already authenticated, go to video room
                             navigate(`/user/video-call-room/${consultationIdFromUrl}`);
                         } else {
-                            // Not authenticated, go to login with return URL
-                            navigate(`/auth?redirect=/user/video-call-room/${consultationIdFromUrl}`);
+                            // Not authenticated, show message and redirect to login
+                            setError('¡Pago exitoso! Por favor inicia sesión para entrar a la videollamada.');
+                            setTimeout(() => {
+                                navigate(`/auth?redirect=/user/video-call-room/${consultationIdFromUrl}`);
+                            }, 3000);
                         }
                     });
                 }, 4000);
