@@ -25,9 +25,10 @@ Deno.serve(async (req: Request) => {
   try {
     const { consultationId, title, price, quantity }: RequestPayload = await req.json();
 
+    // Use service role key to bypass RLS - we validate consultation exists
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Get consultation details
@@ -45,7 +46,7 @@ Deno.serve(async (req: Request) => {
     const { data: mpAccount, error: mpError } = await supabaseClient
       .from('mp_professional_accounts')
       .select('access_token, public_key')
-      .eq('professional_id', consultation.doctor_id)
+      .eq('doctor_id', consultation.doctor_id)
       .eq('is_active', true)
       .single();
 

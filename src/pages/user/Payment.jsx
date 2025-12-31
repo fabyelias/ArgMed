@@ -26,6 +26,12 @@ const Payment = () => {
 
     const createPaymentPreference = async () => {
         try {
+            // Verify user session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error("No estás autenticado. Por favor inicia sesión.");
+            }
+
             const { data: checkData, error: checkError } = await supabase
                 .from('consultations')
                 .select('status, payment_status, consultation_fee')
@@ -33,7 +39,7 @@ const Payment = () => {
                 .single();
 
             if (checkError || !checkData) throw new Error("Error verificando consulta.");
-            
+
             if (checkData.payment_status === 'paid') {
                 toast({ title: "Consulta ya pagada", description: "Redirigiendo a la sala..." });
                 navigate(`/user/consultation/${consultationId}`);
