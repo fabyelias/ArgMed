@@ -17,7 +17,17 @@ const UserPaymentAlert = () => {
 
     const checkPendingPayments = async () => {
       try {
-        // Separate queries to avoid Supabase join issues
+        // First, expire old pending consultations (older than 30 minutes)
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+        await supabase
+          .from('consultations')
+          .update({ status: 'cancelled', payment_status: 'failed' })
+          .eq('patient_id', user.id)
+          .eq('status', 'accepted')
+          .eq('payment_status', 'pending')
+          .lt('created_at', thirtyMinutesAgo);
+
+        // Then check for current pending payments
         const { data, error } = await supabase
           .from('consultations')
           .select('id,consultation_fee,doctor_id')

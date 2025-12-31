@@ -52,6 +52,16 @@ const DoctorHome = () => {
 
     const fetchData = async () => {
       try {
+        // First, expire old pending consultations (older than 30 minutes)
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+        await supabase
+          .from('consultations')
+          .update({ status: 'cancelled', payment_status: 'failed' })
+          .eq('doctor_id', user.id)
+          .eq('status', 'accepted')
+          .eq('payment_status', 'pending')
+          .lt('created_at', thirtyMinutesAgo);
+
         const today = new Date();
         today.setHours(0,0,0,0);
         const todayISO = today.toISOString();
