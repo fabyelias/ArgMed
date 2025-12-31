@@ -57,7 +57,8 @@ const SimpleClinicalSidebar = ({ consultationId, patientId, doctorId }) => {
             await fetchHistory();
         } catch (e) {
             console.error("Error in handleSave:", e);
-            toast({ title: "Error al guardar", description: e.message || "No se pudo guardar el registro", variant: "destructive" });
+            console.error("Error details:", JSON.stringify(e, null, 2));
+            toast({ title: "Error al guardar", description: e.message || e.hint || JSON.stringify(e), variant: "destructive" });
         } finally {
             setIsSaving(false);
         }
