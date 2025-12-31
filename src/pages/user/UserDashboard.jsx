@@ -40,20 +40,33 @@ const UserDashboard = () => {
     const fetchPendingConsultations = async () => {
         if (!user) return;
         try {
+            // Get pending consultations
             const { data, error } = await supabase
                 .from('consultations')
-                .select(`
-                    *,
-                    professionals!doctor_id (
-                        full_name
-                    )
-                `)
+                .select('*')
                 .eq('patient_id', user.id)
                 .eq('status', 'accepted')
                 .eq('payment_status', 'pending');
-            
+
             if (error) throw error;
-            setPendingConsultations(data);
+
+            // Get professional data for each consultation
+            const consultationsWithProfessionals = await Promise.all(
+                (data || []).map(async (consultation) => {
+                    const { data: professionalData } = await supabase
+                        .from('users')
+                        .select('full_name')
+                        .eq('id', consultation.doctor_id)
+                        .single();
+
+                    return {
+                        ...consultation,
+                        professional: professionalData
+                    };
+                })
+            );
+
+            setPendingConsultations(consultationsWithProfessionals);
 
         } catch (error) {
             // Silently handle error - consultations table may not exist yet

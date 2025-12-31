@@ -21,6 +21,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 
 import Payment from '@/pages/user/Payment';
+import PaymentSuccess from '@/pages/user/PaymentSuccess';
 import Consultation from '@/pages/user/Consultation';
 import FindProfessional from '@/pages/user/FindProfessional';
 import ConfirmConsultation from '@/pages/user/ConfirmConsultation';
@@ -62,6 +63,7 @@ function App() {
                 
                 {/* Patient Routes */}
                 <Route path="/user/payment-status" element={<ProtectedRoute role="patient"><PaymentStatus /></ProtectedRoute>} />
+                <Route path="/user/payment-success" element={<ProtectedRoute role="patient"><PaymentSuccess /></ProtectedRoute>} />
                 <Route path="/user/video-permissions/:id" element={<RedirectToVideoRoom role="patient" />} />
                 <Route path="/user/video-call-room/:id" element={<ProtectedRoute role="patient"><PatientVideoCallRoom /></ProtectedRoute>} />
                 <Route path="/user/video-call-active/:id" element={<RedirectToVideoRoom role="patient" />} />
