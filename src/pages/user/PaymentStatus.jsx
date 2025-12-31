@@ -25,8 +25,8 @@ const PaymentStatus = () => {
           // 1. Update consultation
           const { error: updateError } = await supabase
             .from('consultations')
-            .update({ 
-              status: 'paid',
+            .update({
+              status: 'in_progress',
               payment_status: 'paid',
               updated_at: new Date().toISOString()
             })

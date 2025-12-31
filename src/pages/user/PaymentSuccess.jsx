@@ -55,7 +55,7 @@ const PaymentSuccess = () => {
                     .from('consultations')
                     .update({
                         payment_status: 'paid',
-                        status: 'paid'
+                        status: 'in_progress'
                     })
                     .eq('id', consultationIdFromUrl)
                     .select();
