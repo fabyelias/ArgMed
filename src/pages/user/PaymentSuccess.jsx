@@ -55,8 +55,7 @@ const PaymentSuccess = () => {
                     .from('consultations')
                     .update({
                         payment_status: 'paid',
-                        status: 'paid',
-                        mp_payment_id: paymentId || null
+                        status: 'paid'
                     })
                     .eq('id', consultationIdFromUrl)
                     .select();
