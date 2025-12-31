@@ -22,33 +22,45 @@ const ConfirmConsultation = () => {
     const fetchConsultation = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+
+            // Primero obtener la consulta
+            const { data: consultationData, error: consultationError } = await supabase
                 .from('consultations')
-                .select(`
-                    *,
-                    doctor:doctor_id (
-                        full_name,
-                        photo_url,
-                        specialization
-                    )
-                `)
+                .select('*')
                 .eq('id', consultationId)
                 .eq('status', 'accepted')
                 .eq('payment_status', 'pending')
                 .single();
 
-            if (error) {
-                console.error("Consultation fetch error:", error);
+            if (consultationError) {
+                console.error("Consultation fetch error:", consultationError);
                 throw new Error("No se encontró la consulta o ya fue procesada.");
             }
 
-            setConsultation(data);
+            // Luego obtener los datos del doctor
+            const { data: doctorData, error: doctorError } = await supabase
+                .from('users')
+                .select('full_name, photo_url, specialization')
+                .eq('id', consultationData.doctor_id)
+                .single();
+
+            if (doctorError) {
+                console.error("Doctor fetch error:", doctorError);
+            }
+
+            // Combinar los datos
+            const combinedData = {
+                ...consultationData,
+                doctor: doctorData || { full_name: 'Doctor', photo_url: null, specialization: 'Especialista' }
+            };
+
+            setConsultation(combinedData);
         } catch (error) {
             console.error("Error fetching consultation details:", error);
-            toast({ 
-                title: "Error", 
-                description: error.message || "No se pudo cargar la información de la consulta.", 
-                variant: "destructive" 
+            toast({
+                title: "Error",
+                description: error.message || "No se pudo cargar la información de la consulta.",
+                variant: "destructive"
             });
             setTimeout(() => navigate('/user/dashboard'), 2000);
         } finally {
