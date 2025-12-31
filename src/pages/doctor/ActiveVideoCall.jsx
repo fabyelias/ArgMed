@@ -118,10 +118,12 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
       
       // 1. Subscribe to Consultation Updates
       const channel = supabase.channel(`consultation-${consultationId}-status`)
-          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` }, 
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` },
           (payload) => {
+              console.log("[Doctor] Consultation status update received:", payload.new.status);
               if (payload.new.status === 'completed') {
-                  navigate('/doctor');
+                  console.log("[Doctor] Consultation completed, navigating to dashboard");
+                  navigate('/professional');
               }
           })
           .subscribe();
@@ -193,9 +195,24 @@ const ActiveVideoCall = ({ consultationId, patientName }) => {
   const handleEndCall = async () => {
     if(!window.confirm("¿Finalizar consulta?")) return;
     try {
-        await supabase.from('consultations').update({ status: 'completed', ended_at: new Date().toISOString(), duration }).eq('id', consultationId);
-        navigate('/doctor');
-    } catch(e) { navigate('/doctor'); }
+        console.log("[Doctor] Ending call, updating consultation to completed");
+        const { error } = await supabase.from('consultations').update({
+            status: 'completed',
+            ended_at: new Date().toISOString(),
+            duration
+        }).eq('id', consultationId);
+
+        if (error) {
+            console.error("[Doctor] Error ending call:", error);
+            throw error;
+        }
+
+        console.log("[Doctor] Call ended successfully, navigating to dashboard");
+        navigate('/professional');
+    } catch(e) {
+        console.error("[Doctor] Failed to end call:", e);
+        navigate('/professional');
+    }
   };
 
   return (

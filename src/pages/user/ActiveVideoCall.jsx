@@ -31,18 +31,22 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
 
     // 1. Listen for status updates immediately
     const channel = supabase.channel(`consultation-room-${consultationId}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` }, 
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'consultations', filter: `id=eq.${consultationId}` },
         (payload) => {
+            console.log("[Patient] Consultation status update received:", payload.new.status);
+
             // Handle Timer Start (if doctor just started it)
             if (payload.new.started_at && !duration) {
                  const start = new Date(payload.new.started_at).getTime();
                  const now = Date.now();
                  const seconds = Math.floor((now - start) / 1000);
                  setDuration(seconds > 0 ? seconds : 0);
+                 console.log("[Patient] Timer synced:", seconds, "seconds");
             }
 
             // Handle End Call
             if (payload.new.status === 'completed' || payload.new.status === 'finished') {
+                console.log("[Patient] Consultation ended, showing toast and navigating");
                 toast({ title: "Consulta Finalizada", description: "La llamada ha terminado." });
                 navigate('/user');
             }
@@ -114,10 +118,22 @@ const PatientActiveVideoCall = ({ consultationId, doctorName }) => {
   const handleEndCall = async () => {
       if(!window.confirm("¿Finalizar consulta?")) return;
       try {
-        await supabase.from('consultations').update({ status: 'completed', ended_at: new Date().toISOString(), duration }).eq('id', consultationId);
+        console.log("[Patient] Ending call, updating consultation to completed");
+        const { error } = await supabase.from('consultations').update({
+            status: 'completed',
+            ended_at: new Date().toISOString(),
+            duration
+        }).eq('id', consultationId);
+
+        if (error) {
+            console.error("[Patient] Error ending call:", error);
+            throw error;
+        }
+
+        console.log("[Patient] Call ended successfully, navigating to dashboard");
         navigate('/user');
       } catch (e) {
-        console.error("Error ending call:", e);
+        console.error("[Patient] Failed to end call:", e);
         navigate('/user');
       }
   };
