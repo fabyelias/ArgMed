@@ -18,7 +18,6 @@ const SimpleClinicalSidebar = ({ consultationId, patientId, doctorId }) => {
     const [history, setHistory] = useState([]);
     const [diagnosis, setDiagnosis] = useState('');
     const [notes, setNotes] = useState('');
-    const [prescription, setPrescription] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => { if (patientId) fetchHistory(); }, [patientId]);
@@ -27,24 +26,41 @@ const SimpleClinicalSidebar = ({ consultationId, patientId, doctorId }) => {
         try {
             const { data } = await supabase.from('medical_records').select('*').eq('patient_id', patientId).order('created_at', { ascending: false });
             if (data) setHistory(data);
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error fetching history:", e); }
     };
 
     const handleSave = async () => {
-        if (!diagnosis.trim() && !notes.trim()) return toast({ title: "Campos vacíos", variant: "destructive" });
+        if (!diagnosis.trim() && !notes.trim()) {
+            toast({ title: "Campos vacíos", description: "Debe completar al menos el diagnóstico o la observación", variant: "destructive" });
+            return;
+        }
         setIsSaving(true);
         try {
-            const { error } = await supabase.from('medical_records').insert({
-                consultation_id: consultationId, patient_id: patientId, doctor_id: doctorId,
-                diagnosis: diagnosis.trim(), doctor_notes: notes.trim(), prescription: prescription.trim(),
+            const { data, error } = await supabase.from('medical_records').insert({
+                consultation_id: consultationId,
+                patient_id: patientId,
+                doctor_id: doctorId,
+                diagnosis: diagnosis.trim(),
+                doctor_notes: notes.trim(),
                 created_at: new Date().toISOString()
-            });
-            if (error) throw error;
+            }).select();
+
+            if (error) {
+                console.error("Error saving medical record:", error);
+                throw error;
+            }
+
+            console.log("Medical record saved successfully:", data);
             toast({ title: "Guardado correctamente", className: "bg-green-600 text-white" });
-            setDiagnosis(''); setNotes(''); setPrescription('');
+            setDiagnosis('');
+            setNotes('');
             await fetchHistory();
-        } catch (e) { toast({ title: "Error al guardar", variant: "destructive" }); } 
-        finally { setIsSaving(false); }
+        } catch (e) {
+            console.error("Error in handleSave:", e);
+            toast({ title: "Error al guardar", description: e.message || "No se pudo guardar el registro", variant: "destructive" });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -56,9 +72,8 @@ const SimpleClinicalSidebar = ({ consultationId, patientId, doctorId }) => {
             <div className="flex-1 overflow-y-auto p-4 bg-slate-950">
                 {tab === 'notes' ? (
                     <div className="flex flex-col gap-5">
-                        <div><label className="block text-xs font-bold text-cyan-500 uppercase mb-2">Diagnóstico</label><textarea value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-cyan-500 outline-none resize-none" rows={2} /></div>
-                        <div className="flex-1"><label className="block text-xs font-bold text-cyan-500 uppercase mb-2">Evolución</label><textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-cyan-500 outline-none resize-none min-h-[150px]" rows={8} /></div>
-                        <div><label className="block text-xs font-bold text-cyan-500 uppercase mb-2">Receta</label><textarea value={prescription} onChange={(e) => setPrescription(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-cyan-500 outline-none resize-none" rows={3} /></div>
+                        <div><label className="block text-xs font-bold text-cyan-500 uppercase mb-2">Diagnóstico</label><textarea value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-cyan-500 outline-none resize-none" rows={3} /></div>
+                        <div className="flex-1"><label className="block text-xs font-bold text-cyan-500 uppercase mb-2">Observación</label><textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-cyan-500 outline-none resize-none min-h-[200px]" rows={10} /></div>
                         <button onClick={handleSave} disabled={isSaving} className={cn("w-full py-3 rounded-lg font-bold text-white transition-all mt-2", isSaving ? "bg-slate-800 cursor-not-allowed" : "bg-green-600 hover:bg-green-700")}>{isSaving ? "GUARDANDO..." : "GUARDAR REGISTRO"}</button>
                     </div>
                 ) : (
