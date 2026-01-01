@@ -42,23 +42,20 @@ Deno.serve(async (req: Request) => {
       throw new Error('Consultation not found');
     }
 
-    // Get professional's Mercado Pago user_id for collector_id
+    // Get professional's Mercado Pago credentials
     const { data: mpAccount, error: mpError } = await supabaseClient
       .from('mp_professional_accounts')
-      .select('user_id_mp')
+      .select('access_token, public_key')
       .eq('professional_id', consultation.doctor_id)
       .eq('is_active', true)
       .single();
 
-    if (mpError || !mpAccount || !mpAccount.user_id_mp) {
+    if (mpError || !mpAccount || !mpAccount.access_token) {
       throw new Error('Professional does not have Mercado Pago connected');
     }
 
-    // Calculate platform fee (10%)
-    const platformFeeAmount = Math.round(price * 0.10 * 100) / 100; // Round to 2 decimals
-
-    // Create payment preference using PLATFORM credentials with marketplace_fee
-    // This ensures the 10% is automatically retained by the platform
+    // Create payment preference using professional's credentials
+    // Payment goes 100% to professional, webhook will record the 10%/90% split
     const preferenceData = {
       items: [
         {
@@ -68,9 +65,6 @@ Deno.serve(async (req: Request) => {
           currency_id: 'ARS',
         },
       ],
-      marketplace: 'NONE',
-      marketplace_fee: platformFeeAmount,
-      collector_id: parseInt(mpAccount.user_id_mp), // Professional receives 90%
       back_urls: {
         success: `${Deno.env.get('FRONTEND_URL') || 'https://argmed.online'}/user/payment-success?consultation_id=${consultationId}`,
         failure: `${Deno.env.get('FRONTEND_URL') || 'https://argmed.online'}/user/payment?consultation_id=${consultationId}`,
@@ -87,7 +81,7 @@ Deno.serve(async (req: Request) => {
     const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('PLATFORM_MP_ACCESS_TOKEN')}`,
+        'Authorization': `Bearer ${mpAccount.access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(preferenceData),
@@ -104,7 +98,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         preferenceId: preference.id,
-        publicKey: Deno.env.get('PLATFORM_MP_PUBLIC_KEY'),
+        publicKey: mpAccount.public_key,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
