@@ -149,7 +149,8 @@ export const AuthProvider = ({ children }) => {
          extendedData = legalData || {};
       }
 
-      setUser({ ...profileData, ...extendedData, email });
+      // Fix: Preserve the role from profiles table, preventing it from being overridden by extendedData
+      setUser({ ...profileData, ...extendedData, email, role: profileData.role });
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
