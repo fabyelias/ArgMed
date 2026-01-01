@@ -85,17 +85,19 @@ function App() {
                 <Route path="/professional/video-call-active/:id" element={<RedirectToVideoRoom role="doctor" />} />
                 <Route path="/professional/*" element={<ProtectedRoute role="doctor"><ProfessionalDashboard /></ProtectedRoute>} />
 
-                {/* Legal Routes */}
-                <Route path="/legal/dashboard" element={<ProtectedRoute role="legal_admin"><LegalLayout><LegalDashboard /></LegalLayout></ProtectedRoute>} />
-                <Route path="/legal/*" element={<ProtectedRoute role="legal_admin"><LegalLayout><LegalDashboard /></LegalLayout></ProtectedRoute>} />
-
-                {/* Admin Routes */}
-                <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
+                {/* Admin/Legal Routes - All legal_admin users access through /admin */}
+                <Route path="/admin" element={<ProtectedRoute role="legal_admin"><AdminLayout /></ProtectedRoute>}>
                   <Route index element={<AdminDashboard />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="professionals" element={<ManageProfessionals />} />
+                  <Route path="users" element={<ManagePatients />} />
                   <Route path="patients" element={<ManagePatients />} />
-                  <Route path="security" element={<ManageSecurity />} />
+                  <Route path="consultations" element={<ManageSecurity />} />
+                  <Route path="settings" element={<ManageSecurity />} />
                 </Route>
+
+                {/* Legacy legal route redirects to admin */}
+                <Route path="/legal/*" element={<Navigate to="/admin" replace />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
