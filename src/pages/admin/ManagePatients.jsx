@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Users, Search, Download, Shield, Edit, Eye, Loader2, Mail, Phone, Calendar } from 'lucide-react';
+import { Users, Search, Download, Shield, Edit, Eye, Loader2, Mail, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,16 +41,11 @@ const ManagePatients = () => {
       setLoading(true);
 
       // Get all patients with their profile data
+      // Note: users.id references profiles.id, so we use the foreign key constraint
       const { data: usersData, error } = await supabase
         .from('users')
         .select(`
-          *,
-          profiles:id (
-            role,
-            full_name,
-            photo_url,
-            created_at
-          )
+          *
         `)
         .order('created_at', { ascending: false });
 
@@ -93,13 +88,12 @@ const ManagePatients = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['DNI', 'Nombre', 'Apellido', 'Email', 'Teléfono', 'Ciudad', 'Provincia', 'Fecha Registro'];
+    const headers = ['DNI', 'Nombre', 'Apellido', 'Email', 'Ciudad', 'Provincia', 'Fecha Registro'];
     const rows = filteredPatients.map(p => [
       p.dni || '',
       p.first_name || '',
       p.last_name || '',
       p.email || '',
-      p.profiles?.phone || '',
       p.city || '',
       p.province || '',
       new Date(p.created_at).toLocaleDateString('es-AR')
@@ -238,13 +232,6 @@ const ManagePatients = () => {
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                               <Mail className="w-4 h-4" />
                               <span>{patient.email}</span>
-                            </div>
-                          )}
-
-                          {patient.profiles?.phone && (
-                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                              <Phone className="w-4 h-4" />
-                              <span>{patient.profiles.phone}</span>
                             </div>
                           )}
 
