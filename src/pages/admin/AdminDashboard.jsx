@@ -1,110 +1,302 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Activity, Users, Stethoscope, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Users, UserCog, Activity, DollarSign,
+  TrendingUp, Calendar, Shield, Settings,
+  Loader2, Eye, Edit, BarChart3
+} from 'lucide-react';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState([
-    { icon: Users, label: 'Total Patients', value: '-', change: '...' },
-    { icon: Stethoscope, label: 'Active Doctors', value: '-', change: '...' },
-    { icon: DollarSign, label: 'Revenue', value: '-', change: '...' },
-    { icon: TrendingUp, label: 'Consultations', value: '-', change: '...' },
-  ]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProfessionals: 0,
+    totalConsultations: 0,
+    totalRevenue: 0,
+    pendingApprovals: 0,
+    activeConsultations: 0
+  });
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // 1. Patients Count
-        const { count: patientCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .eq('role', 'patient');
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
 
-        // 2. Active Doctors Count
-        const { count: doctorCount } = await supabase
-          .from('professionals')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
 
-        // 3. Revenue (Simple sum of approved payments)
-        const { data: payments } = await supabase
-          .from('payments')
-          .select('total_amount')
-          .eq('status', 'approved');
-        
-        const totalRevenue = payments?.reduce((acc, curr) => acc + (Number(curr.total_amount) || 0), 0) || 0;
+      // Get total users (patients)
+      const { count: userCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true });
 
-        // 4. Consultations Count
-        const { count: consultationCount } = await supabase
-          .from('consultations')
-          .select('*', { count: 'exact', head: true });
+      // Get total professionals
+      const { count: profCount } = await supabase
+        .from('professionals')
+        .select('*', { count: 'exact', head: true });
 
-        setStats([
-          { icon: Users, label: 'Total Patients', value: patientCount || 0, change: 'Live' },
-          { icon: Stethoscope, label: 'Active Doctors', value: doctorCount || 0, change: 'Live' },
-          { icon: DollarSign, label: 'Revenue', value: `$${totalRevenue.toLocaleString()}`, change: 'Live' },
-          { icon: TrendingUp, label: 'Consultations', value: consultationCount || 0, change: 'Live' },
-        ]);
-      } catch (error) {
-        console.error('Error fetching admin stats:', error);
-      }
-    };
+      // Get total consultations
+      const { count: consultCount } = await supabase
+        .from('consultations')
+        .select('*', { count: 'exact', head: true });
 
-    fetchStats();
-  }, []);
+      // Get pending professional approvals
+      const { count: pendingCount } = await supabase
+        .from('professionals')
+        .select('*', { count: 'exact', head: true })
+        .eq('verification_status', 'pending');
+
+      // Get active consultations
+      const { count: activeCount } = await supabase
+        .from('consultations')
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['pending', 'accepted', 'in_progress']);
+
+      // Get total revenue (sum of completed consultations)
+      const { data: revenueData } = await supabase
+        .from('consultations')
+        .select('consultation_fee')
+        .eq('payment_status', 'paid')
+        .eq('status', 'completed');
+
+      const totalRevenue = revenueData?.reduce((sum, c) => sum + parseFloat(c.consultation_fee || 0), 0) || 0;
+
+      setStats({
+        totalUsers: userCount || 0,
+        totalProfessionals: profCount || 0,
+        totalConsultations: consultCount || 0,
+        totalRevenue: totalRevenue,
+        pendingApprovals: pendingCount || 0,
+        activeConsultations: activeCount || 0
+      });
+
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-slate-950">
+        <Loader2 className="animate-spin text-cyan-400 w-8 h-8" />
+      </div>
+    );
+  }
 
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard - ArgMed</title>
-        <meta name="description" content="Platform administration and analytics" />
+        <title>Panel de Administración - ArgMed</title>
+        <meta name="description" content="Panel de control administrativo de ArgMed" />
       </Helmet>
 
-      <div className="min-h-screen bg-slate-950 p-4 lg:p-8">
+      <div className="min-h-screen bg-slate-950 p-6">
         <div className="max-w-7xl mx-auto">
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
           >
-            <div className="flex items-center gap-3 mb-8">
-              <Activity className="w-10 h-10 text-cyan-400" />
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Admin Dashboard
+            <div className="flex items-center gap-3 mb-2">
+              <Shield className="w-8 h-8 text-cyan-400" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Panel de Administración
               </h1>
             </div>
-
-            {/* Stats Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-slate-900/50 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-6 hover:border-cyan-400/60 transition-all"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-                      <stat.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-green-400 text-sm font-medium">{stat.change}</span>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-1">{stat.label}</p>
-                  <p className="text-white text-2xl font-bold">{stat.value}</p>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Placeholder Content */}
-            <div className="bg-slate-900/50 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-12 text-center">
-              <BarChart3 className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold text-white mb-2">Analytics & Reports</h2>
-              <p className="text-gray-400">
-                Detailed platform analytics and user management tools will be available here
-              </p>
-            </div>
+            <p className="text-gray-400">Bienvenido, {user?.user_metadata?.full_name || 'Admin'}</p>
           </motion.div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Total Usuarios
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-blue-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                  <p className="text-xs text-gray-500 mt-1">Pacientes registrados</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Total Profesionales
+                  </CardTitle>
+                  <UserCog className="h-4 w-4 text-green-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.totalProfessionals}</div>
+                  <p className="text-xs text-gray-500 mt-1">Médicos en plataforma</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Consultas Totales
+                  </CardTitle>
+                  <Activity className="h-4 w-4 text-purple-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.totalConsultations}</div>
+                  <p className="text-xs text-gray-500 mt-1">Todas las consultas</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Ingresos Totales
+                  </CardTitle>
+                  <DollarSign className="h-4 w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">
+                    ${stats.totalRevenue.toLocaleString('es-AR')}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Consultas completadas</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Pendientes Aprobación
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-orange-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.pendingApprovals}</div>
+                  <p className="text-xs text-gray-500 mt-1">Profesionales por revisar</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Consultas Activas
+                  </CardTitle>
+                  <TrendingUp className="h-4 w-4 text-cyan-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.activeConsultations}</div>
+                  <p className="text-xs text-gray-500 mt-1">En curso ahora</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Action Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Users className="text-blue-400" /> Gestión de Usuarios
+                  </CardTitle>
+                  <CardDescription>Ver y editar perfiles de pacientes</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => navigate('/admin/users')}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Eye className="mr-2 w-4 h-4" />
+                    Ver Todos los Usuarios
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <UserCog className="text-green-400" /> Gestión de Profesionales
+                  </CardTitle>
+                  <CardDescription>Ver y editar perfiles de médicos</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => navigate('/admin/professionals')}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    <Eye className="mr-2 w-4 h-4" />
+                    Ver Todos los Profesionales
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Activity className="text-purple-400" /> Consultas
+                  </CardTitle>
+                  <CardDescription>Monitorear todas las consultas</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => navigate('/admin/consultations')}
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                  >
+                    <Eye className="mr-2 w-4 h-4" />
+                    Ver Todas las Consultas
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0 }}>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Settings className="text-gray-400" /> Configuración
+                  </CardTitle>
+                  <CardDescription>Ajustes del sistema</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => navigate('/admin/settings')}
+                    variant="outline"
+                    className="w-full border-slate-700"
+                  >
+                    <Settings className="mr-2 w-4 h-4" />
+                    Configuración General
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
       </div>
     </>
