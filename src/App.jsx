@@ -20,6 +20,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import UserPaymentAlert from '@/components/UserPaymentAlert';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { useVersionCheck } from '@/hooks/useVersionCheck';
 
 import Payment from '@/pages/user/Payment';
 import PaymentSuccess from '@/pages/user/PaymentSuccess';
@@ -46,6 +47,9 @@ const RedirectToVideoRoom = ({ role }) => {
 };
 
 function App() {
+  // Auto-reload cuando hay nueva versión disponible
+  useVersionCheck();
+
   return (
     <ErrorBoundary>
       <AuthProvider>
