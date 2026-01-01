@@ -33,7 +33,7 @@ const PaymentSuccess = () => {
                     return;
                 }
 
-                console.log('Updating payment status for consultation:', consultationIdFromUrl);
+                console.log('Verifying payment status for consultation:', consultationIdFromUrl);
 
                 // First verify consultation exists
                 const { data: existingConsultation, error: checkError } = await supabase
@@ -51,7 +51,16 @@ const PaymentSuccess = () => {
                     return;
                 }
 
-                // Update consultation payment status
+                // Check if payment was already processed by webhook
+                if (existingConsultation.payment_status === 'paid') {
+                    console.log('Payment already processed by webhook, no update needed');
+                    setUpdating(false);
+                    return;
+                }
+
+                // If webhook hasn't processed it yet, update manually
+                // (This is a fallback in case webhook is delayed)
+                console.log('Payment not yet processed by webhook, updating manually...');
                 const { data: updateData, error: updateError } = await supabase
                     .from('consultations')
                     .update({
@@ -70,7 +79,7 @@ const PaymentSuccess = () => {
                     console.error('No rows updated');
                     setError('No se pudo actualizar la consulta (0 filas afectadas)');
                 } else {
-                    console.log('Payment status updated successfully:', updateData);
+                    console.log('Payment status updated successfully (fallback):', updateData);
                 }
 
                 setUpdating(false);
