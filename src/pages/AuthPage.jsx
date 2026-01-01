@@ -66,16 +66,28 @@ const AuthPage = () => {
       const credential = isSuperAdmin ? superAdminEmail : loginInput;
       
       const result = await login(credential, formData.password);
-      
+
       if (result.success) {
+          console.log('Login successful, user role:', result.role);
           toast({ title: "¡Bienvenido!", description: "Inicio de sesión exitoso" });
 
           // Redirect based on returned role
-          if (result.role === 'patient') navigate('/user');
-          else if (result.role === 'doctor') navigate('/professional'); // Will redirect to onboarding if needed via Dashboard guard
-          else if (result.role === 'legal_admin') navigate('/admin');
-          else if (result.role === 'admin') navigate('/admin');
-          else navigate('/');
+          if (result.role === 'patient') {
+              console.log('Redirecting to /user');
+              navigate('/user');
+          } else if (result.role === 'doctor') {
+              console.log('Redirecting to /professional');
+              navigate('/professional'); // Will redirect to onboarding if needed via Dashboard guard
+          } else if (result.role === 'legal_admin') {
+              console.log('Redirecting to /admin (legal_admin)');
+              navigate('/admin');
+          } else if (result.role === 'admin') {
+              console.log('Redirecting to /admin (admin)');
+              navigate('/admin');
+          } else {
+              console.log('Unknown role, redirecting to /', result.role);
+              navigate('/');
+          }
       } else {
           // Retry for Super Admin if it was a first-time create race condition
           if (isSuperAdmin) {
