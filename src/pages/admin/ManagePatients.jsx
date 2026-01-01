@@ -26,12 +26,20 @@ const ManagePatients = () => {
     if (searchTerm.trim() === '') {
       setFilteredPatients(patients);
     } else {
-      const filtered = patients.filter(patient =>
-        patient.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.dni?.includes(searchTerm)
-      );
+      console.log('Searching for:', searchTerm, 'in', patients.length, 'patients');
+      const filtered = patients.filter(patient => {
+        const matchesFirstName = patient.first_name?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesLastName = patient.last_name?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesEmail = patient.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesDNI = patient.dni?.includes(searchTerm);
+
+        if (matchesDNI) {
+          console.log('DNI match found:', patient);
+        }
+
+        return matchesFirstName || matchesLastName || matchesEmail || matchesDNI;
+      });
+      console.log('Filtered results:', filtered.length);
       setFilteredPatients(filtered);
     }
   }, [searchTerm, patients]);
@@ -50,6 +58,9 @@ const ManagePatients = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      console.log('Patients loaded:', usersData?.length || 0, 'patients');
+      console.log('First patient sample:', usersData?.[0]);
 
       setPatients(usersData || []);
       setFilteredPatients(usersData || []);
