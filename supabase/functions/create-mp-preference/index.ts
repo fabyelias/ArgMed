@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
       },
       auto_return: 'approved',
       external_reference: consultationId,
-      notification_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mp-webhook`,
+      notification_url: 'https://msnppinpethxfxskfgsv.supabase.co/functions/v1/mp-webhook',
       metadata: {
         consultation_id: consultationId,
       },
