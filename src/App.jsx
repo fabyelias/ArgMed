@@ -11,6 +11,7 @@ import ProfessionalOnboarding from '@/pages/professional/ProfessionalOnboarding'
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import ManageProfessionals from '@/pages/admin/ManageProfessionals';
 import ManagePatients from '@/pages/admin/ManagePatients';
+import ManageConsultations from '@/pages/admin/ManageConsultations';
 import ManageSecurity from '@/pages/admin/ManageSecurity';
 import AdminLayout from '@/components/layouts/AdminLayout';
 
@@ -92,7 +93,7 @@ function App() {
                   <Route path="professionals" element={<ManageProfessionals />} />
                   <Route path="users" element={<ManagePatients />} />
                   <Route path="patients" element={<ManagePatients />} />
-                  <Route path="consultations" element={<ManageSecurity />} />
+                  <Route path="consultations" element={<ManageConsultations />} />
                   <Route path="settings" element={<ManageSecurity />} />
                 </Route>
 
