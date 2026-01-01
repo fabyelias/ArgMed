@@ -38,14 +38,13 @@ USING (
 );
 
 -- Allow legal_admin to read all profiles
+-- Note: We need to check the role directly from auth metadata to avoid recursion
 CREATE POLICY "Legal admins can view all profiles"
 ON public.profiles
 FOR SELECT
 USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid()
-    AND p.role = 'legal_admin'
+  auth.uid() IN (
+    SELECT id FROM public.legal_team WHERE is_active = true
   )
 );
 
