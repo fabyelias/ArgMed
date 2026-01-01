@@ -1,7 +1,10 @@
 -- Create legal_team table for super admin users
 -- This table stores admin users who have full access to the platform
 
-CREATE TABLE IF NOT EXISTS public.legal_team (
+-- Drop existing table if it exists (to ensure clean recreation)
+DROP TABLE IF EXISTS public.legal_team CASCADE;
+
+CREATE TABLE public.legal_team (
     id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
     full_name TEXT NOT NULL,
