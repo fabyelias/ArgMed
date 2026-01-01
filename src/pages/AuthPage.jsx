@@ -69,11 +69,11 @@ const AuthPage = () => {
       
       if (result.success) {
           toast({ title: "¡Bienvenido!", description: "Inicio de sesión exitoso" });
-          
+
           // Redirect based on returned role
           if (result.role === 'patient') navigate('/user');
           else if (result.role === 'doctor') navigate('/professional'); // Will redirect to onboarding if needed via Dashboard guard
-          else if (result.role === 'legal_admin') navigate('/legal/dashboard');
+          else if (result.role === 'legal_admin') navigate('/admin');
           else if (result.role === 'admin') navigate('/admin');
           else navigate('/');
       } else {
@@ -81,7 +81,7 @@ const AuthPage = () => {
           if (isSuperAdmin) {
                const retry = await login(superAdminEmail, formData.password);
                if (retry.success) {
-                  navigate('/legal/dashboard');
+                  navigate('/admin');
                   return;
                }
           }
