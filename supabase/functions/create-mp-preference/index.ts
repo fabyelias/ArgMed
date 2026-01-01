@@ -54,8 +54,9 @@ Deno.serve(async (req: Request) => {
       throw new Error('Professional does not have Mercado Pago connected');
     }
 
-    // Create payment preference
-    // Note: marketplace_fee is configured in Mercado Pago dashboard settings
+    // Create payment preference with marketplace fee (10% platform commission)
+    const platformFeeAmount = price * 0.10;
+
     const preferenceData = {
       items: [
         {
@@ -65,6 +66,7 @@ Deno.serve(async (req: Request) => {
           currency_id: 'ARS',
         },
       ],
+      marketplace_fee: platformFeeAmount,
       back_urls: {
         success: `${Deno.env.get('FRONTEND_URL') || 'https://argmed.online'}/user/payment-success?consultation_id=${consultationId}`,
         failure: `${Deno.env.get('FRONTEND_URL') || 'https://argmed.online'}/user/payment?consultation_id=${consultationId}`,
