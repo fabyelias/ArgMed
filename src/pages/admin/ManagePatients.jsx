@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Users, Search, Download, Shield, Edit, Eye, Loader2, Mail, Calendar } from 'lucide-react';
+import { Users, Search, Download, Shield, Edit, Eye, Loader2, Mail, Calendar, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { toast } from '@/components/ui/use-toast';
 
@@ -12,6 +13,8 @@ const ManagePatients = () => {
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     activeThisMonth: 0,
@@ -120,6 +123,19 @@ const ManagePatients = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `usuarios_argmed_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
+  };
+
+  const handleViewPatient = (patient) => {
+    setSelectedPatient(patient);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditPatient = (patient) => {
+    toast({
+      title: 'Funcionalidad en desarrollo',
+      description: 'La edición de usuarios estará disponible próximamente',
+      variant: 'default'
+    });
   };
 
   if (loading) {
@@ -264,6 +280,7 @@ const ManagePatients = () => {
                       <Button
                         size="sm"
                         variant="ghost"
+                        onClick={() => handleViewPatient(patient)}
                         className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950"
                       >
                         <Eye className="w-4 h-4" />
@@ -271,6 +288,7 @@ const ManagePatients = () => {
                       <Button
                         size="sm"
                         variant="ghost"
+                        onClick={() => handleEditPatient(patient)}
                         className="text-blue-400 hover:text-blue-300 hover:bg-blue-950"
                       >
                         <Edit className="w-4 h-4" />
@@ -283,6 +301,110 @@ const ManagePatients = () => {
           </div>
         )}
       </div>
+
+      {/* View Patient Modal */}
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">
+              Detalles del Usuario
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Información completa del paciente registrado
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPatient && (
+            <div className="space-y-6 mt-4">
+              {/* Header with Avatar */}
+              <div className="flex items-center gap-4 pb-4 border-b border-slate-800">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
+                  {selectedPatient.first_name?.[0]}{selectedPatient.last_name?.[0]}
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white">
+                    {selectedPatient.first_name} {selectedPatient.last_name}
+                  </h3>
+                  <p className="text-sm text-gray-400">ID: {selectedPatient.id.slice(0, 8)}...</p>
+                </div>
+              </div>
+
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500 font-medium">DNI</label>
+                  <p className="text-white font-medium flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-cyan-400" />
+                    {selectedPatient.dni || 'No especificado'}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500 font-medium">Email</label>
+                  <p className="text-white font-medium flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-cyan-400" />
+                    {selectedPatient.email || 'No especificado'}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500 font-medium">Ciudad</label>
+                  <p className="text-white">{selectedPatient.city || 'No especificada'}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500 font-medium">Provincia</label>
+                  <p className="text-white">{selectedPatient.province || 'No especificada'}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500 font-medium">Fecha de Registro</label>
+                  <p className="text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-cyan-400" />
+                    {new Date(selectedPatient.created_at).toLocaleDateString('es-AR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500 font-medium">Última Actualización</label>
+                  <p className="text-white">
+                    {selectedPatient.updated_at
+                      ? new Date(selectedPatient.updated_at).toLocaleDateString('es-AR')
+                      : 'Sin actualizar'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-slate-800">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsViewModalOpen(false)}
+                  className="border-slate-700 text-gray-300 hover:bg-slate-800"
+                >
+                  Cerrar
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsViewModalOpen(false);
+                    handleEditPatient(selectedPatient);
+                  }}
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar Usuario
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
