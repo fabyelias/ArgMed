@@ -40,6 +40,10 @@ SUPABASE_MIGRATION.md
 supabase/INSTRUCCIONES_SQL.txt
 supabase/QUICK_LINKS.md
 supabase/setup-database.ps1
+supabase/ADMIN_CREDENTIALS.txt
+supabase/admin-setup.md
+ADMIN_*.txt
+*_CREDENTIALS.*
 
 # Pre-commit security check
 PRE_COMMIT_CHECK.md

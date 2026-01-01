@@ -38,19 +38,21 @@ WITH CHECK (auth.uid() = id);
 -- Grant permissions
 GRANT SELECT, INSERT, UPDATE ON public.legal_team TO authenticated;
 
--- Create the super admin user profile first
--- Note: This will fail if the user doesn't exist in auth.users
--- You need to create the user in Supabase Auth Dashboard first with:
--- Email: melinexoba@argmed.com
--- Password: GrupoNexoBA2025
-
--- After creating the auth user, run this to get the UUID and insert into profiles and legal_team:
--- INSERT INTO public.profiles (id, role, full_name, terms_accepted)
--- SELECT id, 'legal_admin', 'MelinexoBA', true
--- FROM auth.users
--- WHERE email = 'melinexoba@argmed.com';
-
--- INSERT INTO public.legal_team (id, email, full_name, role)
--- SELECT id, 'melinexoba@argmed.com', 'MelinexoBA', 'super_admin'
--- FROM auth.users
--- WHERE email = 'melinexoba@argmed.com';
+-- To create a super admin user:
+-- 1. Create the user in Supabase Auth Dashboard
+-- 2. Run the following SQL (replace EMAIL and USERNAME):
+--
+-- WITH user_data AS (
+--     SELECT id FROM auth.users WHERE email = 'ADMIN_EMAIL_HERE'
+-- )
+-- INSERT INTO public.profiles (id, role, full_name, terms_accepted, created_at)
+-- SELECT id, 'legal_admin', 'ADMIN_NAME_HERE', true, NOW()
+-- FROM user_data
+-- ON CONFLICT (id) DO NOTHING;
+--
+-- WITH user_data AS (
+--     SELECT id FROM auth.users WHERE email = 'ADMIN_EMAIL_HERE'
+-- )
+-- INSERT INTO public.legal_team (id, email, full_name, role, is_active)
+-- SELECT id, 'ADMIN_EMAIL_HERE', 'ADMIN_NAME_HERE', 'super_admin', true
+-- FROM user_data;
