@@ -42,24 +42,23 @@ Deno.serve(async (req: Request) => {
       throw new Error('Consultation not found');
     }
 
-    // Get professional's Mercado Pago user_id for receiving the 90%
+    // Get professional's Mercado Pago credentials
     const { data: mpAccount, error: mpError } = await supabaseClient
       .from('mp_professional_accounts')
-      .select('user_id_mp')
+      .select('access_token, public_key')
       .eq('professional_id', consultation.doctor_id)
       .eq('is_active', true)
       .single();
 
-    if (mpError || !mpAccount || !mpAccount.user_id_mp) {
+    if (mpError || !mpAccount || !mpAccount.access_token) {
       throw new Error('Professional does not have Mercado Pago connected');
     }
 
-    // Calculate fees: 90% to professional, 10% to platform
-    const professionalAmount = Math.round(price * 0.90 * 100) / 100;
-    const platformFee = Math.round(price * 0.10 * 100) / 100;
+    // Calculate 10% platform fee
+    const platformFeeAmount = Math.round(price * 0.10 * 100) / 100;
 
-    // Create payment preference using PLATFORM credentials
-    // Money goes to platform, then Mercado Pago splits to professional
+    // Create payment preference using PROFESSIONAL's credentials
+    // Patient pays to professional, Mercado Pago automatically sends 10% to platform
     const preferenceData = {
       items: [
         {
@@ -69,14 +68,7 @@ Deno.serve(async (req: Request) => {
           currency_id: 'ARS',
         },
       ],
-      disbursements: [
-        {
-          amount: professionalAmount,
-          external_reference: `prof-${consultationId}`,
-          collector_id: parseInt(mpAccount.user_id_mp),
-          application_fee: platformFee,
-        }
-      ],
+      marketplace_fee: platformFeeAmount,
       back_urls: {
         success: `${Deno.env.get('FRONTEND_URL') || 'https://argmed.online'}/user/payment-success?consultation_id=${consultationId}`,
         failure: `${Deno.env.get('FRONTEND_URL') || 'https://argmed.online'}/user/payment?consultation_id=${consultationId}`,
@@ -93,7 +85,7 @@ Deno.serve(async (req: Request) => {
     const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('PLATFORM_MP_ACCESS_TOKEN')}`,
+        'Authorization': `Bearer ${mpAccount.access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(preferenceData),
@@ -110,7 +102,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         preferenceId: preference.id,
-        publicKey: Deno.env.get('PLATFORM_MP_PUBLIC_KEY'),
+        publicKey: mpAccount.public_key,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
