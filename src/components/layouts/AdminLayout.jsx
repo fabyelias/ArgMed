@@ -1,12 +1,12 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Stethoscope, 
-  Users, 
-  Key, 
-  LogOut, 
-  Menu, 
+import {
+  LayoutDashboard,
+  Stethoscope,
+  Users,
+  Activity,
+  LogOut,
+  Menu,
   X,
   ShieldAlert,
   Settings,
@@ -35,9 +35,10 @@ const AdminLayout = () => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard General', path: '/admin' },
-    { icon: Stethoscope, label: 'Gestión de Médicos', path: '/admin/doctors' },
+    { icon: Stethoscope, label: 'Gestión de Profesionales', path: '/admin/professionals' },
     { icon: Users, label: 'Gestión de Usuarios', path: '/admin/users' },
-    { icon: Key, label: 'Seguridad y Contraseñas', path: '/admin/security' },
+    { icon: Activity, label: 'Gestión de Consultas', path: '/admin/consultations' },
+    { icon: Settings, label: 'Configuración', path: '/admin/settings' },
   ];
 
   const SidebarContent = () => (
