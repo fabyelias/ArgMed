@@ -43,21 +43,87 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get payment details from Mercado Pago
-    // We need to find which professional's token to use
-    // For now, we'll update based on external_reference (consultation_id)
-    // In production, you'd want to store the payment_id with the consultation
+    // Get payment details from Mercado Pago API
+    // We need to use the collector's access token (the professional who received the payment)
+    // First, we'll get basic payment info to find the consultation
+    const mpPublicResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('MP_ACCESS_TOKEN')}`,
+      },
+    });
 
-    // The payment webhook comes before we can verify it
-    // We'll mark it as pending verification and let the success page handle it
-    // Or we can fetch payment details from MP API
+    if (!mpPublicResponse.ok) {
+      console.error('Failed to fetch payment from MP');
+      throw new Error('Could not fetch payment details');
+    }
 
-    // For now, just log and return success
-    // The PaymentSuccess page will handle the status update
-    console.log('Payment webhook processed for payment:', paymentId);
+    const paymentData = await mpPublicResponse.json();
+    console.log('Payment data:', JSON.stringify(paymentData));
+
+    const consultationId = paymentData.external_reference || paymentData.metadata?.consultation_id;
+
+    if (!consultationId) {
+      console.error('No consultation ID in payment data');
+      throw new Error('No consultation reference found');
+    }
+
+    // Get consultation details
+    const { data: consultation, error: consultationError } = await supabaseClient
+      .from('consultations')
+      .select('id, doctor_id, patient_id, consultation_fee')
+      .eq('id', consultationId)
+      .single();
+
+    if (consultationError || !consultation) {
+      console.error('Consultation not found:', consultationId);
+      throw new Error('Consultation not found');
+    }
+
+    // Calculate fees (10% platform, 90% professional)
+    const totalAmount = paymentData.transaction_amount || consultation.consultation_fee;
+    const platformFee = totalAmount * 0.10;
+    const professionalFee = totalAmount * 0.90;
+
+    // Only process approved payments
+    if (paymentData.status === 'approved') {
+      console.log(`Payment approved for consultation ${consultationId}: $${totalAmount}`);
+
+      // Update consultation status
+      await supabaseClient
+        .from('consultations')
+        .update({
+          payment_status: 'paid',
+          status: 'paid',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', consultationId);
+
+      // Insert payment record
+      await supabaseClient
+        .from('payments')
+        .insert({
+          consultation_id: consultationId,
+          total_amount: totalAmount,
+          platform_fee: platformFee,
+          doctor_fee: professionalFee,
+          status: 'paid',
+          payment_method: paymentData.payment_method_id || 'mercadopago',
+          transaction_id: `MP-${paymentId}`,
+          transfers_completed: false,
+        });
+
+      console.log(`Payment recorded: Platform $${platformFee.toFixed(2)}, Professional $${professionalFee.toFixed(2)}`);
+    } else {
+      console.log(`Payment status: ${paymentData.status} - not approved yet`);
+    }
 
     return new Response(
-      JSON.stringify({ received: true, paymentId }),
+      JSON.stringify({
+        received: true,
+        paymentId,
+        status: paymentData.status,
+        consultationId
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
