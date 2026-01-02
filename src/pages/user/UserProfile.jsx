@@ -35,7 +35,7 @@ const UserProfile = () => {
         phone: user.phone || '',
         email: user.email || '',
         address: user.address || '',
-        dateOfBirth: user.date_of_birth || '',
+        dateOfBirth: user.birth_date || '',
         dni: user.dni || ''
       });
       fetchLiveData();
@@ -85,7 +85,7 @@ const UserProfile = () => {
       const { data: medicalRecordsData } = await supabase
         .from('medical_records')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('patient_id', user.id)
         .order('created_at', { ascending: false });
 
       // Get professional data for each medical record
@@ -94,7 +94,7 @@ const UserProfile = () => {
           const { data: professionalData } = await supabase
             .from('users')
             .select('first_name, last_name')
-            .eq('id', record.professional_id)
+            .eq('id', record.doctor_id)
             .maybeSingle();
 
           return {
@@ -113,7 +113,7 @@ const UserProfile = () => {
     const notifSub = supabase.channel('profile-notifs').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
     // Filter by patient_id for consultations
     const consSub = supabase.channel('profile-cons').on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `patient_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
-    const bitacoraSub = supabase.channel('profile-medical-records').on('postgres_changes', { event: '*', schema: 'public', table: 'medical_records', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
+    const bitacoraSub = supabase.channel('profile-medical-records').on('postgres_changes', { event: '*', schema: 'public', table: 'medical_records', filter: `patient_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
     return () => { supabase.removeChannel(notifSub); supabase.removeChannel(consSub); supabase.removeChannel(bitacoraSub); }
   };
 
@@ -121,11 +121,11 @@ const UserProfile = () => {
     if (!profileData.fullName.trim()) return toast({ title: "Error", description: "Nombre obligatorio", variant: "destructive" });
     setSaving(true);
     try {
-        const updates = { fullName: profileData.fullName, address: profileData.address, dni: profileData.dni, date_of_birth: profileData.dateOfBirth || null };
+        const updates = { fullName: profileData.fullName, address: profileData.address, dni: profileData.dni, birth_date: profileData.dateOfBirth || null };
         const result = await updateProfile(updates);
-        if(result.success) { setIsEditing(false); toast({ title: "Perfil actualizado", className: "bg-green-600 text-white" }); } 
+        if(result.success) { setIsEditing(false); toast({ title: "Perfil actualizado", className: "bg-green-600 text-white" }); }
         else throw new Error(result.error);
-    } catch (e) { toast({ title: "Error", description: e.message, variant: "destructive" }); } 
+    } catch (e) { toast({ title: "Error", description: e.message, variant: "destructive" }); }
     finally { setSaving(false); }
   };
   

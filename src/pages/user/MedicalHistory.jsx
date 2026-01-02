@@ -16,21 +16,36 @@ const MedicalHistory = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       if (!user) return;
-      
+
       try {
-        const { data, error } = await supabase
+        // Fetch medical records
+        const { data: medicalRecordsData, error } = await supabase
           .from('medical_records')
-          .select(`
-            *,
-            professional:professional_id (
-                full_name
-            )
-          `)
-          .eq('user_id', user.id)
+          .select('*')
+          .eq('patient_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setRecords(data || []);
+
+        // Get professional data for each record
+        const recordsWithProfessionals = await Promise.all(
+          (medicalRecordsData || []).map(async (record) => {
+            const { data: professionalData } = await supabase
+              .from('users')
+              .select('first_name, last_name')
+              .eq('id', record.doctor_id)
+              .maybeSingle();
+
+            return {
+              ...record,
+              professional: professionalData ? {
+                full_name: `${professionalData.first_name} ${professionalData.last_name}`
+              } : null
+            };
+          })
+        );
+
+        setRecords(recordsWithProfessionals);
       } catch (err) {
         console.error("Error fetching medical records:", err);
       } finally {
@@ -39,12 +54,12 @@ const MedicalHistory = () => {
     };
 
     fetchRecords();
-    
+
     const channel = supabase
       .channel('user-medical-records-updates')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'medical_records', filter: `user_id=eq.${user.id}` },
+        { event: '*', schema: 'public', table: 'medical_records', filter: `patient_id=eq.${user.id}` },
         fetchRecords
       )
       .subscribe();
