@@ -51,7 +51,7 @@ const FindDoctor = () => {
             if (doctorsError) throw doctorsError;
 
             const enrichedDoctors = await Promise.all((doctorsData || []).map(async (doc) => {
-                const { data: userData } = await supabase.from('users').select('first_name, last_name').eq('id', doc.id).single();
+                const { data: userData } = await supabase.from('users').select('first_name, last_name').eq('id', doc.id).maybeSingle();
                 return {
                     ...doc,
                     profiles: userData ? {

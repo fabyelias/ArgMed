@@ -44,7 +44,7 @@ const UserProfile = () => {
   const fetchLiveData = async () => {
     try {
       // Updated: patients -> users
-      const { data: pDetails } = await supabase.from('users').select('*').eq('id', user.id).single();
+      const { data: pDetails } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle();
       setPatientDetails(pDetails || {});
 
       // Updated: patient_id -> user_id, professional:professional_id
