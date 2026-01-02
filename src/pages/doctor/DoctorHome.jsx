@@ -85,7 +85,7 @@ const DoctorHome = () => {
               .from('users')
               .select('first_name, last_name')
               .eq('id', consultation.patient_id)
-              .single();
+              .maybeSingle();
 
             return {
               ...consultation,

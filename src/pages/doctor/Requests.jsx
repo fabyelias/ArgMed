@@ -34,7 +34,7 @@ const Requests = () => {
             .from('users')
             .select('first_name, last_name, photo_url')
             .eq('id', consultation.patient_id)
-            .single();
+            .maybeSingle();
 
           return {
             ...consultation,

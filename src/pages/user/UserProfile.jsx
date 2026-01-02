@@ -61,9 +61,9 @@ const UserProfile = () => {
       setNotifications(notifs || []);
 
       // Updated: consultations.patient_id -> consultations.user_id, professional:professional_id
-      const { data: meds } = await supabase.from('bitacora')
-          .select('*, consultations!inner(created_at, professional:professional_id(full_name))')
-          .eq('consultations.user_id', user.id)
+      const { data: meds } = await supabase.from('medical_records')
+          .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
       setBitacora(meds || []);
     } catch (e) { console.error(e); }
@@ -73,7 +73,7 @@ const UserProfile = () => {
     const notifSub = supabase.channel('profile-notifs').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
     // Updated filter: user_id
     const consSub = supabase.channel('profile-cons').on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
-    const bitacoraSub = supabase.channel('profile-bitacora').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bitacora' }, () => fetchLiveData()).subscribe();
+    const bitacoraSub = supabase.channel('profile-medical-records').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'medical_records' }, () => fetchLiveData()).subscribe();
     return () => { supabase.removeChannel(notifSub); supabase.removeChannel(consSub); supabase.removeChannel(bitacoraSub); }
   };
 

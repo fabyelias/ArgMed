@@ -16,7 +16,7 @@ const MedicalHistory = () => {
       
       try {
         const { data, error } = await supabase
-          .from('bitacora')
+          .from('medical_records')
           .select(`
             *,
             professional:professional_id (
@@ -29,7 +29,7 @@ const MedicalHistory = () => {
         if (error) throw error;
         setRecords(data || []);
       } catch (err) {
-        console.error("Error fetching bitacora:", err);
+        console.error("Error fetching medical records:", err);
       } finally {
         setLoading(false);
       }
@@ -38,10 +38,10 @@ const MedicalHistory = () => {
     fetchRecords();
     
     const channel = supabase
-      .channel('user-bitacora-updates')
+      .channel('user-medical-records-updates')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'bitacora', filter: `user_id=eq.${user.id}` },
+        { event: '*', schema: 'public', table: 'medical_records', filter: `user_id=eq.${user.id}` },
         fetchRecords
       )
       .subscribe();

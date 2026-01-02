@@ -90,7 +90,7 @@ const ActiveConsultation = () => {
             created_at: new Date().toISOString(),
         };
 
-        const { error } = await supabase.from('bitacora').insert([record]);
+        const { error } = await supabase.from('medical_records').insert([record]);
         if (error) throw error;
         
         toast({ title: "Bitácora actualizada", className: "bg-green-600 text-white" });
