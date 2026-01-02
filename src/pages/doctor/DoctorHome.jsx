@@ -136,8 +136,8 @@ const DoctorHome = () => {
 
     fetchData();
 
-    const channel = supabase
-      .channel('professional-dashboard')
+    const consultationsChannel = supabase
+      .channel('professional-dashboard-consultations')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `doctor_id=eq.${user.id}` },
         () => {
              fetchData();
@@ -145,7 +145,19 @@ const DoctorHome = () => {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const requestsChannel = supabase
+      .channel('professional-dashboard-requests')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'consultation_requests', filter: `current_doctor_id=eq.${user.id}` },
+        () => {
+             fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(consultationsChannel);
+      supabase.removeChannel(requestsChannel);
+    };
   }, [user]);
 
   const handleEnterRoom = (cons) => {
