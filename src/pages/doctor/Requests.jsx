@@ -13,14 +13,40 @@ const Requests = () => {
 
   useEffect(() => {
     const fetchRequests = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('consultations')
-        .select('*, profiles:patient_id(full_name, photo_url)')
+        .select('*')
         .eq('doctor_id', user.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
-      
-      setRequests(data || []);
+
+      if (error) {
+        console.error('Error fetching requests:', error);
+        setRequests([]);
+        setLoading(false);
+        return;
+      }
+
+      // Get patient data for each consultation
+      const requestsWithPatients = await Promise.all(
+        (data || []).map(async (consultation) => {
+          const { data: patientData } = await supabase
+            .from('users')
+            .select('first_name, last_name, photo_url')
+            .eq('id', consultation.patient_id)
+            .single();
+
+          return {
+            ...consultation,
+            profiles: patientData ? {
+              full_name: `${patientData.first_name} ${patientData.last_name}`,
+              photo_url: patientData.photo_url
+            } : null
+          };
+        })
+      );
+
+      setRequests(requestsWithPatients);
       setLoading(false);
     };
 

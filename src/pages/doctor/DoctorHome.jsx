@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Activity, Users, Calendar, DollarSign, Clock, 
-  Video, ChevronRight, Loader2, AlertCircle
+import {
+  Activity, Users, Calendar, DollarSign, Clock,
+  Video, ChevronRight, Loader2, AlertCircle, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/components/ui/use-toast';
 
 const StatCard = ({ icon: Icon, label, value, trend, color }) => {
   const colorMap = {
@@ -38,6 +39,7 @@ const StatCard = ({ icon: Icon, label, value, trend, color }) => {
 const DoctorHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [stats, setStats] = useState({
     activeConsultations: 0,
     totalUsers: 0,
@@ -150,6 +152,33 @@ const DoctorHome = () => {
       navigate(`/professional/video-call-room/${cons.id}`);
   };
 
+  const handleCancelConsultation = async (consultationId) => {
+    try {
+      const { error } = await supabase
+        .from('consultations')
+        .update({ status: 'cancelled', payment_status: 'failed' })
+        .eq('id', consultationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Consulta cancelada",
+        description: "La consulta fue eliminada exitosamente",
+        className: "bg-green-600 text-white"
+      });
+
+      // Refresh data
+      setActiveConsultations(prev => prev.filter(c => c.id !== consultationId));
+    } catch (error) {
+      console.error('Error cancelling consultation:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo cancelar la consulta",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
       return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-cyan-500 w-8 h-8" /></div>;
   }
@@ -228,18 +257,31 @@ const DoctorHome = () => {
                           </div>
                         </div>
 
-                        <Button
-                          onClick={() => handleEnterRoom(cons)}
-                          className={cn(
-                            "font-bold shadow-lg",
-                            cons.payment_status === 'paid'
-                              ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-emerald-500/20"
-                              : "bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-gray-300"
+                        <div className="flex gap-2">
+                          {cons.payment_status === 'pending' && (
+                            <Button
+                              onClick={() => handleCancelConsultation(cons.id)}
+                              variant="ghost"
+                              size="icon"
+                              className="bg-red-900/20 hover:bg-red-900/40 text-red-400 hover:text-red-300 border border-red-500/30"
+                              title="Cancelar consulta"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
                           )}
-                        >
-                          <Video className="w-4 h-4 mr-2" />
-                          {cons.payment_status === 'paid' ? 'Ingresar' : 'Esperando Pago'}
-                        </Button>
+                          <Button
+                            onClick={() => handleEnterRoom(cons)}
+                            className={cn(
+                              "font-bold shadow-lg",
+                              cons.payment_status === 'paid'
+                                ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-emerald-500/20"
+                                : "bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-gray-300"
+                            )}
+                          >
+                            <Video className="w-4 h-4 mr-2" />
+                            {cons.payment_status === 'paid' ? 'Ingresar' : 'Esperando Pago'}
+                          </Button>
+                        </div>
                       </div>
                     </motion.div>
                   ))}

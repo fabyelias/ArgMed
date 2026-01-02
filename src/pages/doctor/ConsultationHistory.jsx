@@ -12,15 +12,40 @@ const ConsultationHistory = () => {
 
   const fetchHistory = async () => {
     if (!user) return;
-    
+
     const { data, error } = await supabase
       .from('consultations')
-      .select('*, users:patient_id(full_name)')
+      .select('*')
       .eq('doctor_id', user.id)
       .in('status', ['completed', 'finished', 'reviewed'])
       .order('ended_at', { ascending: false });
 
-    if (!error) setHistory(data || []);
+    if (error) {
+      console.error('Error fetching history:', error);
+      setHistory([]);
+      setLoading(false);
+      return;
+    }
+
+    // Get patient data for each consultation
+    const consultationsWithPatients = await Promise.all(
+      (data || []).map(async (consultation) => {
+        const { data: patientData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('id', consultation.patient_id)
+          .single();
+
+        return {
+          ...consultation,
+          users: patientData ? {
+            full_name: `${patientData.first_name} ${patientData.last_name}`
+          } : null
+        };
+      })
+    );
+
+    setHistory(consultationsWithPatients);
     setLoading(false);
   };
 
@@ -29,11 +54,11 @@ const ConsultationHistory = () => {
     
     const channel = supabase
         .channel('professional-history-live-page')
-        .on('postgres_changes', { 
-          event: '*', 
-          schema: 'public', 
-          table: 'consultations', 
-          filter: `professional_id=eq.${user.id}` 
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'consultations',
+          filter: `doctor_id=eq.${user.id}`
         }, () => {
           fetchHistory();
         })
