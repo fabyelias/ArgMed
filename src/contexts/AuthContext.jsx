@@ -150,7 +150,9 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Fix: Preserve the role from profiles table, preventing it from being overridden by extendedData
-      setUser({ ...profileData, ...extendedData, email, role: profileData.role });
+      // Ensure photo_url comes from the extended data if available, otherwise from profiles
+      const photo_url = extendedData.photo_url || profileData.photo_url;
+      setUser({ ...profileData, ...extendedData, email, role: profileData.role, photo_url });
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
