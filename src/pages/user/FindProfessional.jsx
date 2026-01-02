@@ -162,9 +162,15 @@ const FindProfessional = () => {
 
         await supabase.from('notifications').insert({
             user_id: nextDoc.id,
-            type: 'info',
+            type: 'smart_request',
             title: 'Solicitud Inmediata',
             message: `${user.full_name} espera atención${nextDoc.specialization ? ` (${nextDoc.specialization})` : ''}.`,
+            payload: {
+                requestId: requestId,
+                patientId: user.id,
+                patientName: user.full_name,
+                specialty: nextDoc.specialization
+            },
             is_read: false
         });
 
@@ -258,9 +264,14 @@ const FindProfessional = () => {
 
             await supabase.from('notifications').insert({
                 user_id: professional.id,
-                type: 'info',
+                type: 'consultation_request',
                 title: 'Solicitud Directa',
                 message: `${user.full_name} solicita sesión.`,
+                payload: {
+                    consultationId: data.id,
+                    patientId: user.id,
+                    patientName: user.full_name
+                },
                 related_consultation_id: data.id,
                 is_read: false
             });
@@ -381,16 +392,51 @@ const FindProfessional = () => {
                  ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                          {filteredProfessionals.map(doc => (
-                            <div key={doc.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition-all group">
-                                <div className="flex justify-between mb-4">
-                                    <div className="w-14 h-14 rounded-full bg-slate-800 overflow-hidden border border-slate-700">
-                                        <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-xl">{doc.profiles?.full_name?.[0] || 'P'}</div>
+                            <div key={doc.id} className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition-all group shadow-lg hover:shadow-cyan-500/10">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 overflow-hidden border-2 border-slate-700 group-hover:border-cyan-500/50 transition-all shadow-lg">
+                                            {doc.photo_url ? (
+                                                <img src={doc.photo_url} alt={doc.profiles?.full_name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-white font-bold text-2xl">
+                                                    {doc.profiles?.full_name?.[0] || 'P'}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {doc.is_active && (
+                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-slate-900 flex items-center justify-center">
+                                                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="flex items-center gap-1 text-yellow-500 text-xs font-bold"><Star className="w-3 h-3 fill-current" /> {doc.rating || '5.0'}</div>
+                                    <div className="flex items-center gap-1 bg-yellow-500/10 px-2 py-1 rounded-full border border-yellow-500/30">
+                                        <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                                        <span className="text-yellow-500 text-xs font-bold">{doc.rating || '5.0'}</span>
+                                    </div>
                                 </div>
-                                <h3 className="font-bold text-white">{doc.profiles?.full_name}</h3>
-                                <p className="text-cyan-400 text-sm mb-4">{doc.specialization}</p>
-                                <Button onClick={() => handleOpenRequestDialog('list_click', doc)} className="w-full bg-slate-800 hover:bg-cyan-600 text-white transition-colors">
+
+                                <div className="mb-4">
+                                    <h3 className="font-bold text-white text-lg mb-1 group-hover:text-cyan-400 transition-colors">{doc.profiles?.full_name || 'Profesional'}</h3>
+                                    <p className="text-cyan-400 text-sm font-medium mb-2">{doc.specialization || 'Médico General'}</p>
+
+                                    {doc.license_number && (
+                                        <p className="text-gray-500 text-xs">Mat. Nº {doc.license_number}</p>
+                                    )}
+                                </div>
+
+                                <div className="bg-slate-950/50 rounded-lg p-3 mb-4 border border-slate-800">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-400 text-xs">Consulta</span>
+                                        <span className="text-emerald-400 font-bold text-lg">${doc.consultation_fee || '0'}</span>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    onClick={() => handleOpenRequestDialog('list_click', doc)}
+                                    className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white transition-all shadow-md hover:shadow-lg group-hover:scale-[1.02]"
+                                >
+                                    <User className="w-4 h-4 mr-2" />
                                     Solicitar Sesión
                                 </Button>
                             </div>

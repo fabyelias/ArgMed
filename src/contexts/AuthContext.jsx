@@ -363,8 +363,21 @@ export const AuthProvider = ({ children }) => {
       if (error) throw error;
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
       if (!data?.publicUrl) throw new Error('Could not get public URL');
-      await updateProfile({ photo_url: data.publicUrl });
-      return { success: true, url: data.publicUrl };
+
+      // Update both profiles table and role-specific table
+      const photoUrl = data.publicUrl;
+
+      // Update profiles table
+      await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', user.id);
+
+      // Update role-specific table
+      const table = user.role === 'doctor' ? 'professionals' : (user.role === 'legal_admin' ? 'legal_team' : 'users');
+      await supabase.from(table).update({ photo_url: photoUrl }).eq('id', user.id);
+
+      // Refresh user profile
+      await fetchUserProfile(user.id, user.email);
+
+      return { success: true, url: photoUrl };
     } catch (error) {
       return { success: false, error: error.message };
     }

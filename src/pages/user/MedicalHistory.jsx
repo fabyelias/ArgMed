@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { FileText, Calendar, User, Lock, Loader2, BookOpen } from 'lucide-react';
+import { FileText, Calendar, User, Lock, Loader2, BookOpen, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const MedicalHistory = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +58,14 @@ const MedicalHistory = () => {
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <Button
+          onClick={() => navigate('/user')}
+          variant="ghost"
+          className="mb-4 text-gray-400 hover:text-white"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Volver al inicio
+        </Button>
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Bitácora de Sesiones

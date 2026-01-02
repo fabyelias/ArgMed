@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Lock, Globe, Moon, Trash2, AlertTriangle } from 'lucide-react';
+import { Bell, Lock, Globe, Moon, Trash2, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,6 +70,14 @@ const Settings = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <Button
+        onClick={() => navigate('/user')}
+        variant="ghost"
+        className="mb-4 text-gray-400 hover:text-white"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Volver al inicio
+      </Button>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

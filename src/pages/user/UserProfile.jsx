@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState, useRef } from 'react';
-import { User, Mail, Phone, Calendar, FileText, Bell, Activity, Edit2, Save, Upload, MapPin, CreditCard, Loader2, Heart, Shield, Pill, BookOpen } from 'lucide-react';
+import { User, Mail, Phone, Calendar, FileText, Bell, Activity, Edit2, Save, Upload, MapPin, CreditCard, Loader2, Heart, Shield, Pill, BookOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,9 +9,11 @@ import { toast } from '@/components/ui/use-toast';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 const UserProfile = () => {
   const { user, updateProfile, uploadPhoto } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -47,12 +49,31 @@ const UserProfile = () => {
       const { data: pDetails } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle();
       setPatientDetails(pDetails || {});
 
-      // Updated: patient_id -> user_id, professional:professional_id
-      const { data: cons } = await supabase.from('consultations')
-          .select('*, professional:professional_id(full_name)')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-      setConsultations(cons || []);
+      // Fetch consultations with professional data
+      const { data: consultationsData } = await supabase
+        .from('consultations')
+        .select('*')
+        .eq('patient_id', user.id)
+        .order('created_at', { ascending: false });
+
+      // Get professional data for each consultation
+      const consultationsWithProfessionals = await Promise.all(
+        (consultationsData || []).map(async (consultation) => {
+          const { data: professionalData } = await supabase
+            .from('users')
+            .select('first_name, last_name')
+            .eq('id', consultation.doctor_id)
+            .maybeSingle();
+
+          return {
+            ...consultation,
+            professional: professionalData ? {
+              full_name: `${professionalData.first_name} ${professionalData.last_name}`
+            } : null
+          };
+        })
+      );
+      setConsultations(consultationsWithProfessionals);
 
       const { data: notifs } = await supabase.from('notifications')
           .select('*')
@@ -60,20 +81,39 @@ const UserProfile = () => {
           .order('created_at', { ascending: false });
       setNotifications(notifs || []);
 
-      // Updated: consultations.patient_id -> consultations.user_id, professional:professional_id
-      const { data: meds } = await supabase.from('medical_records')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-      setBitacora(meds || []);
+      // Fetch medical records with professional data
+      const { data: medicalRecordsData } = await supabase
+        .from('medical_records')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      // Get professional data for each medical record
+      const medicalRecordsWithProfessionals = await Promise.all(
+        (medicalRecordsData || []).map(async (record) => {
+          const { data: professionalData } = await supabase
+            .from('users')
+            .select('first_name, last_name')
+            .eq('id', record.professional_id)
+            .maybeSingle();
+
+          return {
+            ...record,
+            professional: professionalData ? {
+              full_name: `${professionalData.first_name} ${professionalData.last_name}`
+            } : null
+          };
+        })
+      );
+      setBitacora(medicalRecordsWithProfessionals);
     } catch (e) { console.error(e); }
   };
 
   const subscribeToRealtime = () => {
     const notifSub = supabase.channel('profile-notifs').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
-    // Updated filter: user_id
-    const consSub = supabase.channel('profile-cons').on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
-    const bitacoraSub = supabase.channel('profile-medical-records').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'medical_records' }, () => fetchLiveData()).subscribe();
+    // Filter by patient_id for consultations
+    const consSub = supabase.channel('profile-cons').on('postgres_changes', { event: '*', schema: 'public', table: 'consultations', filter: `patient_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
+    const bitacoraSub = supabase.channel('profile-medical-records').on('postgres_changes', { event: '*', schema: 'public', table: 'medical_records', filter: `user_id=eq.${user.id}` }, () => fetchLiveData()).subscribe();
     return () => { supabase.removeChannel(notifSub); supabase.removeChannel(consSub); supabase.removeChannel(bitacoraSub); }
   };
 
@@ -100,6 +140,14 @@ const UserProfile = () => {
 
   return (
     <div className="max-w-7xl mx-auto pb-20 w-full">
+      <Button
+        onClick={() => navigate('/user')}
+        variant="ghost"
+        className="mb-4 text-gray-400 hover:text-white"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Volver al inicio
+      </Button>
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white">Mi Perfil</h1>
@@ -256,7 +304,7 @@ const UserProfile = () => {
                      <div className="flex justify-end"><Button variant="outline" size="sm" className="h-7 text-xs border-slate-700 text-cyan-400"><Shield className="w-3 h-3 mr-1" /> Privado</Button></div>
                      {bitacora.length === 0 ? <div className="text-center py-8 text-gray-500 text-sm">Bitácora vacía.</div> : bitacora.map((m, i) => (
                          <Card key={i} className="bg-slate-900 border-slate-800 p-4">
-                             <div className="flex justify-between mb-2"><span className="text-xs text-gray-400">{new Date(m.created_at).toLocaleDateString()}</span><span className="text-xs font-bold text-white">Esp. {m.consultations?.professional?.full_name}</span></div>
+                             <div className="flex justify-between mb-2"><span className="text-xs text-gray-400">{new Date(m.created_at).toLocaleDateString()}</span><span className="text-xs font-bold text-white">Esp. {m.professional?.full_name || 'Especialista'}</span></div>
                              <div className="bg-slate-950 p-3 rounded border border-slate-800"><p className="text-xs text-gray-500 font-bold uppercase">Observaciones</p><p className="text-sm text-white">{m.diagnosis}</p></div>
                          </Card>
                      ))}
