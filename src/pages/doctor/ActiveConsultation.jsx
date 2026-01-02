@@ -40,7 +40,7 @@ const ActiveConsultation = () => {
     const fetchConsultation = async () => {
       const { data, error } = await supabase
         .from('consultations')
-        .select('*, users:patient_id(id, full_name, photo_url)')
+        .select('*')
         .eq('id', consultationId)
         .single();
 
@@ -49,7 +49,22 @@ const ActiveConsultation = () => {
         navigate('/professional/dashboard');
         return;
       }
-      setConsultation(data);
+
+      // Get patient data separately
+      const { data: patientData } = await supabase
+        .from('users')
+        .select('id, first_name, last_name, photo_url')
+        .eq('id', data.patient_id)
+        .maybeSingle();
+
+      setConsultation({
+        ...data,
+        users: patientData ? {
+          id: patientData.id,
+          full_name: `${patientData.first_name} ${patientData.last_name}`,
+          photo_url: patientData.photo_url
+        } : null
+      });
       setLoading(false);
     };
 

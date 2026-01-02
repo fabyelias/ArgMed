@@ -42,10 +42,29 @@ const DoctorProfile = () => {
 
   const fetchLiveData = async () => {
      try {
-        const { data: cons } = await supabase.from('consultations').select('*, users:patient_id(full_name)').eq('doctor_id', user.id).order('updated_at', { ascending: false });
-        setConsultations(cons || []);
+        const { data: cons } = await supabase.from('consultations').select('*').eq('doctor_id', user.id).order('updated_at', { ascending: false });
+
+        // Get patient data for each consultation
+        const consultationsWithPatients = await Promise.all(
+          (cons || []).map(async (consultation) => {
+            const { data: patientData } = await supabase
+              .from('users')
+              .select('first_name, last_name')
+              .eq('id', consultation.patient_id)
+              .maybeSingle();
+
+            return {
+              ...consultation,
+              users: patientData ? {
+                full_name: `${patientData.first_name} ${patientData.last_name}`
+              } : null
+            };
+          })
+        );
+
+        setConsultations(consultationsWithPatients || []);
         const uniquePats = new Map();
-        cons?.forEach(c => {
+        consultationsWithPatients?.forEach(c => {
             if (c.status === 'completed' && c.users) {
                 if (!uniquePats.has(c.patient_id)) { uniquePats.set(c.patient_id, { name: c.users.full_name, count: 1, lastDate: c.created_at }); }
                 else { uniquePats.get(c.patient_id).count += 1; }

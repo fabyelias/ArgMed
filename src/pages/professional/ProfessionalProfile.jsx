@@ -37,14 +37,32 @@ const ProfessionalProfile = () => {
      try {
         const { data: cons } = await supabase
           .from('consultations')
-          .select('*, users:patient_id(full_name)')
+          .select('*')
           .eq('doctor_id', user.id)
           .order('updated_at', { ascending: false });
 
-        setConsultations(cons || []);
+        // Get patient data for each consultation
+        const consultationsWithPatients = await Promise.all(
+          (cons || []).map(async (consultation) => {
+            const { data: patientData } = await supabase
+              .from('users')
+              .select('first_name, last_name')
+              .eq('id', consultation.patient_id)
+              .maybeSingle();
+
+            return {
+              ...consultation,
+              users: patientData ? {
+                full_name: `${patientData.first_name} ${patientData.last_name}`
+              } : null
+            };
+          })
+        );
+
+        setConsultations(consultationsWithPatients || []);
 
         const uniqueUsers = new Map();
-        cons?.forEach(c => {
+        consultationsWithPatients?.forEach(c => {
             if (c.status === 'completed' && c.users) {
                 if (!uniqueUsers.has(c.patient_id)) {
                   uniqueUsers.set(c.patient_id, { name: c.users.full_name, count: 1, lastDate: c.created_at });
@@ -54,7 +72,7 @@ const ProfessionalProfile = () => {
             }
         });
         setUsers(Array.from(uniqueUsers.values()));
-        
+
         const { data: notifs } = await supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         setNotifications(notifs || []);
      } catch (err) { console.error(err); }

@@ -52,7 +52,7 @@ const Consultation = () => {
     const fetchConsultation = async () => {
       if (!user || !id) return;
       const { data, error } = await supabase.from('consultations')
-        .select('*, doctor:doctor_id(*, profiles(full_name))')
+        .select('*')
         .eq('id', id)
         .eq('patient_id', user.id)
         .single();
@@ -62,8 +62,24 @@ const Consultation = () => {
         navigate('/user');
         return;
       }
+
+      // Get doctor data separately
+      const { data: doctorData } = await supabase
+        .from('users')
+        .select('id, first_name, last_name')
+        .eq('id', data.doctor_id)
+        .maybeSingle();
+
       if (mounted) {
-        setConsultation(data);
+        setConsultation({
+          ...data,
+          doctor: doctorData ? {
+            ...doctorData,
+            profiles: {
+              full_name: `${doctorData.first_name} ${doctorData.last_name}`
+            }
+          } : null
+        });
         setLoading(false);
       }
     };

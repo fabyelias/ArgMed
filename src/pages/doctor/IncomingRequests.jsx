@@ -15,12 +15,31 @@ const IncomingRequests = () => {
     setLoading(true);
     const { data } = await supabase
       .from('consultations')
-      .select('*, users:patient_id(full_name, photo_url)')
+      .select('*')
       .eq('doctor_id', user.id)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
-    
-    setRequests(data || []);
+
+    // Get patient data for each request
+    const requestsWithPatients = await Promise.all(
+      (data || []).map(async (request) => {
+        const { data: patientData } = await supabase
+          .from('users')
+          .select('first_name, last_name, photo_url')
+          .eq('id', request.patient_id)
+          .maybeSingle();
+
+        return {
+          ...request,
+          users: patientData ? {
+            full_name: `${patientData.first_name} ${patientData.last_name}`,
+            photo_url: patientData.photo_url
+          } : null
+        };
+      })
+    );
+
+    setRequests(requestsWithPatients || []);
     setLoading(false);
   };
 
