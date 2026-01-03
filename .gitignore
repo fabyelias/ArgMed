@@ -5,7 +5,7 @@
 
 # Node
 node_modules/
-módulos_de_nodo/
+modulos_de_nodo/
 
 # Editor
 .vscode/
