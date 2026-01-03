@@ -82,7 +82,10 @@ Deno.serve(async (req: Request) => {
       },
     };
 
-    const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
+    console.log('Creating MP preference with token:', mpAccount.access_token?.substring(0, 20) + '...');
+    console.log('Preference data:', JSON.stringify(preferenceData, null, 2));
+
+    let mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${mpAccount.access_token}`,
@@ -91,10 +94,73 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify(preferenceData),
     });
 
+    console.log('MP Response status:', mpResponse.status);
+
+    // If token is invalid/expired, try to refresh it
+    if (mpResponse.status === 401 || mpResponse.status === 404) {
+      console.log('Token may be expired, attempting to refresh...');
+
+      if (mpAccount.refresh_token) {
+        try {
+          const refreshResponse = await fetch('https://api.mercadopago.com/oauth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              client_id: Deno.env.get('MP_CLIENT_ID') || Deno.env.get('MERCADO_PAGO_CLIENT_ID') || '',
+              client_secret: Deno.env.get('MP_CLIENT_SECRET') || Deno.env.get('MERCADO_PAGO_CLIENT_SECRET') || '',
+              grant_type: 'refresh_token',
+              refresh_token: mpAccount.refresh_token,
+            }),
+          });
+
+          if (refreshResponse.ok) {
+            const newTokenData = await refreshResponse.json();
+
+            // Update token in database
+            await supabaseClient
+              .from('mp_professional_accounts')
+              .update({
+                access_token: newTokenData.access_token,
+                refresh_token: newTokenData.refresh_token,
+                last_refreshed_at: new Date().toISOString(),
+              })
+              .eq('professional_id', consultation.doctor_id);
+
+            console.log('Token refreshed successfully');
+
+            // Retry the preference creation with new token
+            mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${newTokenData.access_token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(preferenceData),
+            });
+          } else {
+            console.error('Failed to refresh token:', await refreshResponse.text());
+          }
+        } catch (refreshError) {
+          console.error('Error refreshing token:', refreshError);
+        }
+      }
+    }
+
     if (!mpResponse.ok) {
-      const error = await mpResponse.text();
-      console.error('MP Preference Creation Error:', error);
-      throw new Error(`Failed to create preference: ${error}`);
+      const errorText = await mpResponse.text();
+      console.error('MP Preference Creation Error:', errorText);
+      console.error('MP Response status:', mpResponse.status);
+
+      // Try to parse error response
+      let errorMessage = errorText;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorJson.error || errorText;
+      } catch (e) {
+        // Keep original error text
+      }
+
+      throw new Error(`MercadoPago API Error (${mpResponse.status}): ${errorMessage}`);
     }
 
     const preference = await mpResponse.json();

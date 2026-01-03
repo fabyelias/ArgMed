@@ -12,7 +12,8 @@ const Payment = () => {
     const { toast } = useToast();
     const [preferenceId, setPreferenceId] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+    const [error, setError] = useState(null);
+
     const { consultationId, amount, professionalName } = location.state || {};
 
     useEffect(() => {
@@ -32,11 +33,16 @@ const Payment = () => {
                 throw new Error("No estás autenticado. Por favor inicia sesión.");
             }
 
+            console.log('[Payment] Fetching consultation:', consultationId);
+
             const { data: checkData, error: checkError } = await supabase
                 .from('consultations')
-                .select('status, payment_status, consultation_fee')
+                .select('status, payment_status, consultation_fee, doctor_id')
                 .eq('id', consultationId)
                 .single();
+
+            console.log('[Payment] Consultation data:', checkData);
+            console.log('[Payment] Consultation error:', checkError);
 
             if (checkError || !checkData) throw new Error("Error verificando consulta.");
 
@@ -47,6 +53,14 @@ const Payment = () => {
             }
 
             // Call Edge Function directly without JWT requirement
+            console.log('[Payment] Calling Edge Function with:', {
+                consultationId,
+                title: `Consulta Médica - Dr. ${professionalName || 'Especialista'}`,
+                price: parseFloat(amount || checkData.consultation_fee || 0),
+                quantity: 1,
+                doctor_id: checkData.doctor_id
+            });
+
             const response = await fetch(
                 `https://msnppinpethxfxskfgsv.supabase.co/functions/v1/create-mp-preference`,
                 {
@@ -64,12 +78,32 @@ const Payment = () => {
                 }
             );
 
+            console.log('[Payment] Response status:', response.status);
             const result = await response.json();
-            console.log('MP Response:', result);
+            console.log('[Payment] MP Response:', result);
 
             if (!response.ok) {
                 console.error('MP Function Error:', result);
-                throw new Error(result.error || 'Error al crear preferencia de pago');
+                const errorMessage = result.error || 'Error al crear preferencia de pago';
+
+                // Check if error is related to MP connection
+                if (errorMessage.includes('does not have Mercado Pago connected')) {
+                    setError('El profesional aún no ha configurado su cuenta de Mercado Pago. Por favor, contacta al especialista.');
+                    toast({
+                        title: "Configuración Pendiente",
+                        description: "El especialista debe conectar su cuenta de Mercado Pago primero.",
+                        variant: "destructive"
+                    });
+                } else {
+                    setError(errorMessage);
+                    toast({
+                        title: "Error de Pago",
+                        description: errorMessage,
+                        variant: "destructive"
+                    });
+                }
+                setLoading(false);
+                return;
             }
 
             if (result.preferenceId) {
@@ -79,12 +113,20 @@ const Payment = () => {
                 }
             } else {
                 console.error('No preference ID in response:', result);
-                throw new Error("No se recibió ID de preferencia.");
+                const msg = "No se recibió ID de preferencia de Mercado Pago.";
+                setError(msg);
+                throw new Error(msg);
             }
 
         } catch (error) {
             console.error("Payment setup error:", error);
-            toast({ title: "Error de Pago", description: "No se pudo iniciar la pasarela de pago.", variant: "destructive" });
+            const errorMsg = error.message || "No se pudo iniciar la pasarela de pago.";
+            setError(errorMsg);
+            toast({
+                title: "Error de Pago",
+                description: errorMsg,
+                variant: "destructive"
+            });
         } finally {
             setLoading(false);
         }
@@ -119,6 +161,28 @@ const Payment = () => {
                     <div className="flex flex-col items-center justify-center py-8">
                         <Loader2 className="w-10 h-10 text-cyan-500 animate-spin mb-2" />
                         <p className="text-sm text-gray-500">Conectando con Mercado Pago...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center space-y-4">
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                            <p className="text-red-400 text-sm mb-2">{error}</p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <Button
+                                onClick={() => window.location.reload()}
+                                variant="outline"
+                                className="border-slate-700 hover:bg-slate-800"
+                            >
+                                Reintentar
+                            </Button>
+                            <Button
+                                onClick={() => navigate('/user/dashboard')}
+                                variant="ghost"
+                                className="text-gray-500 hover:text-white"
+                            >
+                                Volver al Panel
+                            </Button>
+                        </div>
                     </div>
                 ) : preferenceId ? (
                     <div className="mp-wallet-container">
