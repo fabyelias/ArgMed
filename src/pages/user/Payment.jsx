@@ -33,16 +33,11 @@ const Payment = () => {
                 throw new Error("No estás autenticado. Por favor inicia sesión.");
             }
 
-            console.log('[Payment] Fetching consultation:', consultationId);
-
             const { data: checkData, error: checkError } = await supabase
                 .from('consultations')
                 .select('status, payment_status, consultation_fee, doctor_id')
                 .eq('id', consultationId)
                 .single();
-
-            console.log('[Payment] Consultation data:', checkData);
-            console.log('[Payment] Consultation error:', checkError);
 
             if (checkError || !checkData) throw new Error("Error verificando consulta.");
 
@@ -53,14 +48,6 @@ const Payment = () => {
             }
 
             // Call Edge Function directly without JWT requirement
-            console.log('[Payment] Calling Edge Function with:', {
-                consultationId,
-                title: `Consulta Médica - Dr. ${professionalName || 'Especialista'}`,
-                price: parseFloat(amount || checkData.consultation_fee || 0),
-                quantity: 1,
-                doctor_id: checkData.doctor_id
-            });
-
             const response = await fetch(
                 `https://msnppinpethxfxskfgsv.supabase.co/functions/v1/create-mp-preference`,
                 {
@@ -78,9 +65,7 @@ const Payment = () => {
                 }
             );
 
-            console.log('[Payment] Response status:', response.status);
             const result = await response.json();
-            console.log('[Payment] MP Response:', result);
 
             if (!response.ok) {
                 console.error('MP Function Error:', result);

@@ -131,7 +131,7 @@ const AuthPage = () => {
           termsAcceptedAt: new Date().toISOString(),
           ...(role === 'doctor' && {
             profession: formData.profession, // Free text field for any profession type
-            consultationFee: 0,
+            consultationFee: 5000, // Default consultation fee (minimum allowed by DB constraint)
             isActive: false
           })
       };

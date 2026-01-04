@@ -256,7 +256,7 @@ export const AuthProvider = ({ children }) => {
             license_number: '', // Will be filled during onboarding
             is_active: false,
             verification_status: 'pending',
-            consultation_fee: additionalData.consultationFee || 0
+            consultation_fee: additionalData.consultationFee || 5000 // Default 5000 (minimum allowed by DB constraint)
           }]);
         } else if (role === 'patient') {
           await supabase.from('users').insert([{ 

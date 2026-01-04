@@ -339,7 +339,7 @@ const ProfessionalOnboarding = () => {
           is_active: false,
           verification_status: 'pending',
           license_number: '',
-          consultation_fee: 0
+          consultation_fee: 5000 // Default consultation fee (minimum allowed by DB constraint)
         });
 
       if (createError) {
